@@ -1,6 +1,7 @@
 console.log("Loaded keyboard-tab-switcher");
 
 let tabsContainer;
+let searchBar;
 let menu;
 
 const loadMenu = async (url) => {
@@ -37,7 +38,10 @@ const commandHandler = async (cmd) => {
         case "open-switcher":
             if (!menu) {
                 menu = await loadMenu();
+                console.log(menu);
                 tabsContainer = menu.querySelector("#tabs-cnt");
+                searchBar = menu.querySelector("#tab-search-bar");
+                searchBar.focus();
             }
             await loadTabs(tabsContainer);
             break;
@@ -61,9 +65,22 @@ document.addEventListener("keydown", (event) => {
             event.preventDefault()
             commandHandler({ action: "close-switcher" })
             break;
+        case "Tab":
+            event.preventDefault();
+            commandHandler({ action: "cycle", reverse: event.shiftKey })
+            break;
+        case "Enter":
+            event.preventDefault();
+            break;
     }
 })
 
-browser.runtime.onMessage.addListener(commandHandler)
+window.addEventListener('click', function(event) {
+    if (menu && !menu.contains(event.target)) {
+        commandHandler({ action: "close-switcher" });
+    }
+});
+
+browser.runtime.onMessage.addListener(commandHandler);
 
 

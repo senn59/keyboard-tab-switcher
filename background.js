@@ -13,21 +13,22 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-const sendToCurrentTab = (cmd) => {
+const sendCommand = (cmd) => {
     browser.tabs.query({ active: true }).then(tabs => {
         browser.tabs.sendMessage(tabs[0].id, { action: cmd });
-    }).catch(err => {
-        console.error(`Failed to send cmd '${cmd}'`, err);
-    })
+    });
 }
 
 browser.commands.onCommand.addListener(cmd => {
     switch (cmd) {
         case "open-switcher":
-            sendToCurrentTab(cmd);
+            sendCommand(cmd);
             break;
         case "close-switcher":
-            sendToCurrentTab(cmd);
+            sendCommand(cmd);
             break;
     }
 });
+browser.tabs.onActivated.addListener(() => {
+    sendCommand("close-switcher");
+})

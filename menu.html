@@ -1,13 +1,19 @@
 <style>
-#tab-switcher-cnt{
+#tab-switcher-cnt {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, 50%);
 }
 
+#tabs-cnt {
+    display: flex;
+    flex-direction: column;
+}
+
 </style>
 <div id="tab-switcher-cnt">
   <h1>Tab Switcher</h1>
-  <p>{tabs}</p>
+  <div id="tabs-cnt">
+  </div>
 </div>

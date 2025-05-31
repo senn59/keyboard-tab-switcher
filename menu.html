@@ -1,28 +1,87 @@
 <style>
-#tab-switcher-cnt {
-  position: absolute;
-  padding: 20px;
-  background-color: red;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, 50%);
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+:host {
+    --max-items-in-view: 6;
+    --item-height: 36px;
+    --search-bar-height: 48px;
 }
 
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+    color: #ffffff;
+    font-family: "JetBrains Mono", monospace;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+#tab-switcher-cnt {
+    position: fixed;
+    z-index: 2147483647;
+    background-color: #202020;
+    width: 600px;
+    height: calc(var(--max-items-in-view) * var(--item-height) + var(--search-bar-height));
+    height: 400px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid white;
+}
+ul {
+    text-decoration: none;
+    list-style: none;
+    padding: 0;
+}
 #tabs-cnt {
     display: flex;
     flex-direction: column;
 }
 .tab {
-    background-color: yellow;
+    height: var(--item-height);
+    line-height: var(--item-height);
+    font-size: 14px;
+    width: 100%;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-wrap: nowrap;
+    text-overflow: ellipsis;
 }
 .tab[aria-selected="true"] {
-    background-color: green;
+    background-color: #404040;
 }
-
+.tab img {
+    height: 18px;
+    padding-right: 8px;
+}
+input {
+    height: var(--search-bar-height);
+    line-height: var(--search-bar-height);
+    font-size: 16px;
+}
+#search-bar-cnt {
+    height: 48px;
+    line-height: 48px;
+    font-size: 16px;
+    padding: 0 8px;
+}
+input {
+    padding: 0;
+    background-color: transparent;
+    color: white;
+}
+input:focus {
+    outline: none;
+}
 </style>
 <div id="tab-switcher-cnt">
-  <h1>Tab Switcher</h1>
-  <input type="text" placeholder="search" id="tab-search-bar" />
-  <ul id="tabs-cnt">
-  </ul>
+    <div id="search-bar-cnt">
+        <span>tab:</span>
+        <input type="text" placeholder=". . ." id="search-bar"/>
+    </div>
+    <ul id="tabs-cnt"></ul>
 </div>

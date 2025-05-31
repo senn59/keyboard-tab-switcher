@@ -12,7 +12,8 @@ const loadMenu = async (url) => {
         const response = await fetch(url);
         const html = await response.text();
         const container = document.createElement("div");
-        container.innerHTML = html;
+        const shadow = container.attachShadow({ mode: "open" })
+        shadow.innerHTML = html;
         document.body.appendChild(container);
         return container
     } catch (err) {
@@ -25,14 +26,21 @@ const loadTabs = async (tabsContainer) => {
     tabsContainer.innerHTML = "";
     tabs = await browser.runtime.sendMessage({ action: "query-tabs" });
     tabs.forEach(t => {
-        const el = document.createElement("li");
-        el.classList.add("tab");
-        el.dataset.id = t.id
-        el.innerText = t.title;
-        el.onclick = () => {
+        const tabItem = document.createElement("li");
+        tabItem.classList.add("tab");
+        tabItem.dataset.id = t.id
+        tabItem.onclick = () => {
             browser.runtime.sendMessage({ action: "switch-tab", tabId: t.id });
         }
-        tabsContainer.append(el);
+        const favicon = document.createElement("img");
+        favicon.src = t.favicon;
+        favicon.alt = t.title + " fav icon";
+        const tabTitle = document.createElement("span");
+        tabTitle.innerText = t.title;
+        tabTitle.classList.add("tab-title");
+        tabItem.append(favicon);
+        tabItem.append(tabTitle);
+        tabsContainer.append(tabItem);
     });
     tabsContainer.firstChild.ariaSelected = true;
     selectedTab = tabsContainer.firstChild;
@@ -50,8 +58,8 @@ const commandHandler = async (cmd) => {
         case "open-switcher":
             if (!menu) {
                 menu = await loadMenu();
-                tabsContainer = menu.querySelector("#tabs-cnt");
-                searchBar = menu.querySelector("#tab-search-bar");
+                tabsContainer = menu.shadowRoot.querySelector("#tabs-cnt");
+                searchBar = menu.shadowRoot.querySelector("#search-bar");
                 searchBar.focus();
             }
             await loadTabs(tabsContainer);
@@ -118,5 +126,4 @@ window.addEventListener('click', function(event) {
 });
 
 browser.runtime.onMessage.addListener(commandHandler);
-
 

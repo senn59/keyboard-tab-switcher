@@ -7,6 +7,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         id: t.id,
                         title: t.title,
                         url: t.url,
+                        favicon: t.favIconUrl
                     }
                 }));
         case "switch-tab":

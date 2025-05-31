@@ -1,6 +1,11 @@
+console.log("Loaded keyboard-tab-switcher");
+
+let tabsContainer;
+let menu;
 
 const loadMenu = async (url) => {
     try {
+        const url = browser.runtime.getURL("menu.html")
         const response = await fetch(url);
         const html = await response.text();
         const container = document.createElement("div");
@@ -13,20 +18,52 @@ const loadMenu = async (url) => {
     }
 }
 
-(async () => {
-    console.log("Loaded keyboard-tab-switcher");
-    const menu = await loadMenu(browser.runtime.getURL("menu.html"));
-
-    const tabsContainer = menu.querySelector("#tabs-cnt")
-    const tabs = await browser.runtime.sendMessage({ action: "queryTabs" })
+const loadTabs = async (tabsContainer) => {
+    tabsContainer.innerHTML = "";
+    const tabs = await browser.runtime.sendMessage({ action: "queryTabs" });
     tabs.forEach(t => {
         const el = document.createElement("div");
         el.innerText = t.title;
         el.onclick = () => {
-            browser.runtime.sendMessage({ action: "switchTab", tab: t })
+            browser.runtime.sendMessage({ action: "switchTab", tab: t });
         }
         tabsContainer.append(el);
     });
+}
 
-})();
+
+const commandHandler = async (cmd) => {
+    switch (cmd.action) {
+        case "open-switcher":
+            if (!menu) {
+                menu = await loadMenu();
+                tabsContainer = menu.querySelector("#tabs-cnt");
+            }
+            await loadTabs(tabsContainer);
+            break;
+        case "close-switcher":
+            if (!menu) {
+                return;
+            }
+            menu.remove();
+            menu = undefined;
+            break;
+    }
+}
+
+/*
+ * Keys like 'Escape', 'Tab', 'Enter' aren't allowed as browser commands.
+ * We add an event listener to work around this.
+*/
+document.addEventListener("keydown", (event) => {
+    switch (event.key) {
+        case "Escape":
+            event.preventDefault()
+            commandHandler({ action: "close-switcher" })
+            break;
+    }
+})
+
+browser.runtime.onMessage.addListener(commandHandler)
+
 

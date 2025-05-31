@@ -5,13 +5,21 @@
 
   "description": "Use the keyboard to navigate between your tabs easily.",
 
-  "permissions": ["activeTab", "tabs"],
+  "permissions": ["activeTab", "tabs", "commands"],
   "web_accessible_resources": [
       {
           "resources": ["menu.html"],
           "matches": ["<all_urls>"]
       }
   ],
+
+  "commands": {
+      "open-switcher": {
+          "suggested_key": {
+              "default": "Ctrl+Space"
+          }
+      }
+  },
 
   "content_scripts": [
     {

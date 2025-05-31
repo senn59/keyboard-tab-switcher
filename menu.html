@@ -12,11 +12,17 @@
     display: flex;
     flex-direction: column;
 }
+.tab {
+    background-color: yellow;
+}
+.tab[aria-selected="true"] {
+    background-color: green;
+}
 
 </style>
 <div id="tab-switcher-cnt">
   <h1>Tab Switcher</h1>
   <input type="text" placeholder="search" id="tab-search-bar" />
-  <div id="tabs-cnt">
-  </div>
+  <ul id="tabs-cnt">
+  </ul>
 </div>

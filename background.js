@@ -1,15 +1,17 @@
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === "queryTabs") {
-        return browser.tabs.query({ /*active: false*/ })
-            .then(tabs => tabs.map(t => {
-                return {
-                    id: t.id,
-                    title: t.title,
-                    url: t.url,
-                }
-            }));
-    } else if (message.action === "switchTab") {
-        browser.tabs.update(message.tab.id, { active: true });
+    switch (message.action) {
+        case "query-tabs":
+            return browser.tabs.query({ /*active: false*/ })
+                .then(tabs => tabs.map(t => {
+                    return {
+                        id: t.id,
+                        title: t.title,
+                        url: t.url,
+                    }
+                }));
+        case "switch-tab":
+            browser.tabs.update(message.tabId, { active: true });
+            break;
     }
 });
 

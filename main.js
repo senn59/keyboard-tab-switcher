@@ -3,6 +3,8 @@ console.log("Loaded keyboard-tab-switcher");
 let tabsContainer;
 let searchBar;
 let menu;
+let tabs;
+let selectedTab;
 
 const loadMenu = async (url) => {
     try {
@@ -21,15 +23,25 @@ const loadMenu = async (url) => {
 
 const loadTabs = async (tabsContainer) => {
     tabsContainer.innerHTML = "";
-    const tabs = await browser.runtime.sendMessage({ action: "queryTabs" });
+    tabs = await browser.runtime.sendMessage({ action: "query-tabs" });
     tabs.forEach(t => {
-        const el = document.createElement("div");
+        const el = document.createElement("li");
+        el.classList.add("tab");
+        el.dataset.id = t.id
         el.innerText = t.title;
         el.onclick = () => {
-            browser.runtime.sendMessage({ action: "switchTab", tab: t });
+            browser.runtime.sendMessage({ action: "switch-tab", tabId: t.id });
         }
         tabsContainer.append(el);
     });
+    tabsContainer.firstChild.ariaSelected = true;
+    selectedTab = tabsContainer.firstChild;
+}
+
+const setSelectedTab = (element) => {
+    selectedTab.ariaSelected = false;
+    selectedTab = element;
+    element.ariaSelected = true;
 }
 
 
@@ -38,7 +50,6 @@ const commandHandler = async (cmd) => {
         case "open-switcher":
             if (!menu) {
                 menu = await loadMenu();
-                console.log(menu);
                 tabsContainer = menu.querySelector("#tabs-cnt");
                 searchBar = menu.querySelector("#tab-search-bar");
                 searchBar.focus();
@@ -52,6 +63,27 @@ const commandHandler = async (cmd) => {
             menu.remove();
             menu = undefined;
             break;
+        case "cycle-tab":
+            if (selectedTab.nextSibling) {
+                setSelectedTab(selectedTab.nextSibling);
+            } else {
+                setSelectedTab(tabsContainer.firstChild);
+            }
+            break;
+        case "cycle-tab-reverse":
+            if (selectedTab.previousSibling) {
+                setSelectedTab(selectedTab.previousSibling);
+            } else {
+                setSelectedTab(tabsContainer.lastChild);
+            }
+            break;
+        case "switch-tab":
+            commandHandler({ action: "close-switcher" })
+            browser.runtime.sendMessage({
+                action: "switch-tab",
+                tabId: Number(selectedTab.dataset.id)
+            });
+            break;
     }
 }
 
@@ -60,18 +92,22 @@ const commandHandler = async (cmd) => {
  * We add an event listener to work around this.
 */
 document.addEventListener("keydown", (event) => {
-    switch (event.key) {
-        case "Escape":
-            event.preventDefault()
-            commandHandler({ action: "close-switcher" })
-            break;
-        case "Tab":
-            event.preventDefault();
-            commandHandler({ action: "cycle", reverse: event.shiftKey })
-            break;
-        case "Enter":
-            event.preventDefault();
-            break;
+    if (menu) {
+        switch (event.key) {
+            case "Escape":
+                event.preventDefault()
+                commandHandler({ action: "close-switcher" })
+                break;
+            case "Tab":
+                event.preventDefault();
+                const command = event.shiftKey ? "cycle-tab-reverse" : "cycle-tab";
+                commandHandler({ action: command });
+                break;
+            case "Enter":
+                event.preventDefault();
+                commandHandler({ action: "switch-tab" });
+                break;
+        }
     }
 })
 

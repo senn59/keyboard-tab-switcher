@@ -5,7 +5,7 @@
 
   "description": "Use the keyboard to navigate between your tabs easily.",
 
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "tabs"],
   "web_accessible_resources": [
       {
           "resources": ["menu.html"],
@@ -21,5 +21,8 @@
       ],
       "js": ["./main.js"]
     }
-  ]
+  ],
+  "background": { 
+      "scripts": ["background.js"] 
+  }
 }

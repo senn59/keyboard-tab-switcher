@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Keyboard tab switcher",
+  "version": "0.1",
+
+  "description": "Use the keyboard to navigate between your tabs easily.",
+
+  "permissions": ["activeTab"],
+  "web_accessible_resources": [
+      {
+          "resources": ["menu.html"],
+          "matches": ["<all_urls>"]
+      }
+  ],
+
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": ["./main.js"]
+    }
+  ]
+}

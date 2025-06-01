@@ -4,7 +4,7 @@
   "description": "A browser addon for quickly switching tabs using the keyboard",
   "main": "index.js",
   "scripts": {
-    "dev": "web-ext run -p $HOME/.mozilla/firefox/addon-development --keep-profile-changes --profile-create-if-missing"
+    "dev": "web-ext run --source-dir=src -p $HOME/.mozilla/firefox/addon-development --keep-profile-changes --profile-create-if-missing"
   },
   "keywords": [],
   "author": "",

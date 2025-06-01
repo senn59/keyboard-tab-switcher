@@ -1,6 +1,17 @@
 {
-	"devDependencies": {
-		"@types/firefox-webext-browser": "^120.0.4",
-		"typescript": "^5.8.3"
-	}
+  "name": "keyboard-tab-switcher",
+  "version": "1.0.0",
+  "description": "A browser addon for quickly switching tabs using the keyboard",
+  "main": "index.js",
+  "scripts": {
+    "dev": "web-ext run -p $HOME/.mozilla/firefox/addon-development --keep-profile-changes --profile-create-if-missing"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.1",
+  "devDependencies": {
+    "@types/firefox-webext-browser": "^120.0.4",
+    "web-ext": "^8.7.1"
+  }
 }

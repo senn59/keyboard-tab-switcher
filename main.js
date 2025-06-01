@@ -5,6 +5,8 @@ let searchBar;
 let menu;
 let tabs;
 let selectedTab;
+let page;
+const maxPageItems = 6
 
 const loadMenu = async (url) => {
     try {
@@ -22,27 +24,48 @@ const loadMenu = async (url) => {
     }
 }
 
-const loadTabs = async (tabsContainer) => {
-    tabsContainer.innerHTML = "";
+const loadTabs = async (container, options) => {
+    container.innerHTML = "";
     tabs = await browser.runtime.sendMessage({ action: "query-tabs" });
-    tabs.forEach(t => {
-        const tabItem = document.createElement("li");
-        tabItem.classList.add("tab");
-        tabItem.dataset.id = t.id
-        tabItem.onclick = () => {
+    page = options.page
+    if (tabs.length <= maxPageItems) {
+        page = 1;
+    }
+
+    const loopInit = (maxPageItems * page) - maxPageItems;
+    const loopCondition = (maxPageItems * page) - 1;
+    for (i = loopInit; i <= loopCondition; i++) {
+        const t = tabs[i];
+        if (!t) {
+            continue;
+        }
+
+        const item = document.createElement("li");
+        const favicon = document.createElement("img");
+        const title = document.createElement("span");
+
+        item.classList.add("tab");
+        item.dataset.id = t.id
+        item.onclick = () => {
             browser.runtime.sendMessage({ action: "switch-tab", tabId: t.id });
         }
-        const favicon = document.createElement("img");
+
         favicon.src = t.favicon;
         favicon.alt = t.title + " fav icon";
-        const tabTitle = document.createElement("span");
-        tabTitle.innerText = t.title;
-        tabTitle.classList.add("tab-title");
-        tabItem.append(favicon);
-        tabItem.append(tabTitle);
-        tabsContainer.append(tabItem);
-    });
-    setSelectedTab(tabsContainer.firstChild);
+
+        title.innerText = t.title;
+        title.classList.add("tab-title");
+
+        item.append(favicon);
+        item.append(title);
+        container.append(item);
+    }
+
+    if (options.reverse) {
+        setSelectedTab(container.lastChild);
+    } else {
+        setSelectedTab(container.firstChild);
+    }
 }
 
 const setSelectedTab = (element) => {
@@ -67,7 +90,7 @@ const commandHandler = async (cmd) => {
                 window.addEventListener("click", handleClick);
                 document.addEventListener("keydown", handleKeydown)
             }
-            await loadTabs(tabsContainer);
+            await loadTabs(tabsContainer, { page: 1 });
             break;
         case "close-switcher":
             if (!menu) {
@@ -83,15 +106,29 @@ const commandHandler = async (cmd) => {
         case "cycle-tab":
             if (selectedTab.nextSibling) {
                 setSelectedTab(selectedTab.nextSibling);
+            } else if (tabs.length > page * maxPageItems) {
+                loadTabs(tabsContainer, { page: page + 1 });
             } else {
-                setSelectedTab(tabsContainer.firstChild);
+                const maxPages = Math.ceil(tabs.length / maxPageItems);
+                if (maxPages > 1 && page === maxPages) {
+                    loadTabs(tabsContainer, { page: 1 });
+                } else {
+                    setSelectedTab(tabsContainer.firstChild);
+                }
             }
             break;
         case "cycle-tab-reverse":
             if (selectedTab.previousSibling) {
                 setSelectedTab(selectedTab.previousSibling);
+            } else if (page > 1) {
+                loadTabs(tabsContainer, { page: page - 1, reverse: true });
             } else {
-                setSelectedTab(tabsContainer.lastChild);
+                const maxPages = Math.ceil(tabs.length / maxPageItems);
+                if (maxPages > 1) {
+                    loadTabs(tabsContainer, { page: maxPages, reverse: true });
+                } else {
+                    setSelectedTab(tabsContainer.lastChild);
+                }
             }
             break;
         case "switch-tab":

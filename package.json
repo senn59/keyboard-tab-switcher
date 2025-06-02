@@ -4,7 +4,9 @@
   "description": "A browser addon for quickly switching tabs using the keyboard",
   "main": "index.js",
   "scripts": {
-    "dev": "web-ext run --source-dir=src -p $HOME/.mozilla/firefox/addon-development --keep-profile-changes --profile-create-if-missing"
+    "dev": "webpack --config webpack.config.js --progress --color --watch",
+    "watch": "web-ext run -p $HOME/.mozilla/firefox/addon-development --keep-profile-changes --profile-create-if-missing --source-dir=dist",
+    "start": "pnpm run dev & pnpm run watch"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +14,11 @@
   "packageManager": "pnpm@10.8.1",
   "devDependencies": {
     "@types/firefox-webext-browser": "^120.0.4",
-    "web-ext": "^8.7.1"
+    "copy-webpack-plugin": "^13.0.0",
+    "web-ext": "^8.7.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "webpack": "^5.99.9"
   }
 }

@@ -2,7 +2,6 @@
   "manifest_version": 3,
   "name": "Keyboard tab switcher",
   "version": "0.1",
-
   "description": "Use the keyboard to navigate between your tabs easily.",
 
   "permissions": ["activeTab", "tabs", "commands"],
@@ -14,7 +13,7 @@
   ],
 
   "commands": {
-      "open-switcher": {
+      "open-menu": {
           "suggested_key": {
               "default": "Ctrl+Space"
           }
@@ -27,6 +26,7 @@
       "js": ["content.bundle.js"]
     }
   ],
+
   "background": { 
       "scripts": ["background.bundle.js"] 
   }

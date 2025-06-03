@@ -25,27 +25,26 @@ export class MenuUI {
             const response = await fetch(this.url);
             const html = await response.text();
             const container = document.createElement("div");
-            const shadow = container.attachShadow({ mode: "open" })
+            const shadow = container.attachShadow({ mode: "open" });
             shadow.innerHTML = html;
             document.body.appendChild(container);
-
 
             const tabsContainer = shadow.querySelector("#tabs-cnt") as HTMLElement;
             const searchBar = shadow.querySelector("#search-bar") as HTMLInputElement;
             if (!(this.tabsContainer instanceof HTMLElement)) {
-                throw new Error("Missing tabs container")
+                throw new Error("Missing tabs container");
             }
             if (!(this.searchBar instanceof HTMLInputElement)) {
-                throw new Error("Missing tabs container")
+                throw new Error("Missing tabs container");
             }
 
             this.menu = container;
-            this.tabsContainer = tabsContainer
+            this.tabsContainer = tabsContainer;
             this.searchBar = searchBar;
             this.searchBar.focus();
             this.#addListeners();
         } catch (err) {
-            console.error("Error loading keyboard-tab-switcher menu", err)
+            console.error("Error loading keyboard-tab-switcher menu", err);
             return false;
         }
         return true;
@@ -75,9 +74,9 @@ export class MenuUI {
         this.tabsContainer = undefined;
         this.url = "";
         this.eventHandlers = {
-            keyDown: () => { },
-            click: () => { },
-            search: () => { }
-        }
+            keyDown: () => {},
+            click: () => {},
+            search: () => {}
+        };
     }
 }

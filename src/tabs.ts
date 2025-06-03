@@ -1,8 +1,8 @@
 export interface Tab {
-    id: number,
-    title: string,
-    url: string,
-    favicon: string | undefined
+    id: number;
+    title: string;
+    url: string;
+    favicon: string | undefined;
 }
 export class TabService {
     selectedTab: HTMLElement;
@@ -26,8 +26,8 @@ export class TabService {
             this.page = 1;
         }
 
-        const loopInit = (this.pageLength * this.page) - this.pageLength;
-        const loopCondition = (this.pageLength * this.page) - 1;
+        const loopInit = this.pageLength * this.page - this.pageLength;
+        const loopCondition = this.pageLength * this.page - 1;
         for (let i = loopInit; i <= loopCondition; i++) {
             const t = this.tabs[i];
             if (!t) {
@@ -39,10 +39,10 @@ export class TabService {
             const title = document.createElement("span");
 
             item.classList.add("tab");
-            item.dataset.id = t.id.toString()
+            item.dataset.id = t.id.toString();
             item.onclick = () => {
                 browser.runtime.sendMessage({ action: "switch-tab", tabId: t.id });
-            }
+            };
 
             favicon.src = t.favicon ?? "";
             favicon.alt = t.title + " fav icon";

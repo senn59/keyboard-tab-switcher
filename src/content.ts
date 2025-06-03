@@ -6,14 +6,13 @@ let menu: MenuUI | undefined;
 let tabs: TabService | undefined;
 const pageLength = 6;
 
-
 const commandHandler = async (cmd: string) => {
     switch (cmd) {
         case "open-switcher":
             if (menu) {
                 return;
             }
-            const url = browser.runtime.getURL("menu.html")
+            const url = browser.runtime.getURL("menu.html");
             menu = new MenuUI(url, eventHandlers);
             if (!menu.open() || !menu.tabsContainer) {
                 return;
@@ -28,8 +27,8 @@ const commandHandler = async (cmd: string) => {
                 return;
             }
 
-            menu.close()
-            menu = undefined
+            menu.close();
+            menu = undefined;
             tabs = undefined;
             break;
         case "cycle-tab":
@@ -47,17 +46,17 @@ const commandHandler = async (cmd: string) => {
             commandHandler("close-switcher");
             break;
     }
-}
+};
 
 /*
  * Keys like 'Escape', 'Tab', 'Enter' aren't allowed as browser commands.
  * We add an event listener to work around this.
-*/
+ */
 const eventHandlers: EventHandlers = {
     keyDown: (event: KeyboardEvent) => {
         switch (event.key) {
             case "Escape":
-                event.preventDefault()
+                event.preventDefault();
                 commandHandler("close-switcher");
                 break;
             case "Tab":
@@ -72,14 +71,13 @@ const eventHandlers: EventHandlers = {
         }
     },
     click: (event: MouseEvent) => {
-        if (menu?.menu && !menu.menu.contains((event.target as Node))) {
+        if (menu?.menu && !menu.menu.contains(event.target as Node)) {
             commandHandler("close-switcher");
         }
     },
     search: (event: Event) => {
         console.log((event.target as HTMLInputElement).value);
     }
-}
+};
 
 browser.runtime.onMessage.addListener((cmd) => commandHandler(cmd.action));
-

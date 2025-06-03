@@ -1,15 +1,15 @@
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+import { Tab } from "./tabs";
+browser.runtime.onMessage.addListener((message) => {
     switch (message.action) {
         case "query-tabs":
             return browser.tabs.query({ /*active: false*/ })
-                .then(tabs => tabs.map(t => {
-                    return {
-                        id: t.id,
-                        title: t.title,
-                        url: t.url,
-                        favicon: t.favIconUrl
-                    }
-                }));
+                .then(tabs => tabs.map(t => ({
+                    id: t.id,
+                    title: t.title,
+                    url: t.url,
+                    favicon: t.favIconUrl
+                } as Tab
+                )));
         case "switch-tab":
             browser.tabs.update(message.tabId, { active: true });
             break;
@@ -18,6 +18,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 const sendCommand = (cmd) => {
     browser.tabs.query({ active: true }).then(tabs => {
+        if (!tabs[0].id) return;
         browser.tabs.sendMessage(tabs[0].id, { action: cmd });
     });
 }

@@ -1,12 +1,18 @@
-export default class Tabs {
-    selectedTab;
-    lastPage;
-    page;
-    pageLength;
-    container;
-    tabs;
+export interface Tab {
+    id: number,
+    title: string,
+    url: string,
+    favicon: string | undefined
+}
+export class TabService {
+    selectedTab: HTMLElement;
+    lastPage: number;
+    page: number;
+    pageLength: number;
+    container: HTMLElement;
+    tabs: Tab[];
 
-    constructor(container, tabs, pageLength) {
+    constructor(container: HTMLElement, tabs: Tab[], pageLength: number) {
         this.tabs = tabs;
         this.container = container;
         this.pageLength = pageLength;
@@ -33,12 +39,12 @@ export default class Tabs {
             const title = document.createElement("span");
 
             item.classList.add("tab");
-            item.dataset.id = t.id
+            item.dataset.id = t.id.toString()
             item.onclick = () => {
                 browser.runtime.sendMessage({ action: "switch-tab", tabId: t.id });
             }
 
-            favicon.src = t.favicon;
+            favicon.src = t.favicon ?? "";
             favicon.alt = t.title + " fav icon";
 
             title.innerText = t.title;
@@ -50,28 +56,24 @@ export default class Tabs {
         }
 
         if (reverse) {
-            this.setSelectedTab(this.container.lastChild);
+            this.setSelectedTab(this.container.lastChild as HTMLElement);
         } else {
-            this.setSelectedTab(this.container.firstChild);
+            this.setSelectedTab(this.container.firstChild as HTMLElement);
         }
     }
 
-    setSelectedTab(tab) {
+    setSelectedTab(tab: HTMLElement) {
         if (this.selectedTab) {
-            this.selectedTab.ariaSelected = false;
+            this.selectedTab.ariaSelected = "false";
         }
         this.selectedTab = tab;
-        tab.ariaSelected = true;
+        tab.ariaSelected = "true";
     }
 
-    cycle(reverse = false) {
-        reverse ? this.#cycleReverse() : this.#cycle();
-    }
-
-    #cycle() {
+    cycle() {
         // if there is another item select it
         if (this.selectedTab.nextSibling) {
-            this.setSelectedTab(this.selectedTab.nextSibling);
+            this.setSelectedTab(this.selectedTab.nextSibling as HTMLElement);
             return;
         }
         // if there are more items, go to the next page
@@ -87,13 +89,13 @@ export default class Tabs {
             return;
         }
         // select the first item if we are on the last item
-        this.setSelectedTab(this.container.firstChild);
+        this.setSelectedTab(this.container.firstChild as HTMLElement);
     }
 
-    #cycleReverse() {
+    cycleReverse() {
         // if there is a previous item select it
         if (this.selectedTab.previousSibling) {
-            this.setSelectedTab(this.selectedTab.previousSibling);
+            this.setSelectedTab(this.selectedTab.previousSibling as HTMLElement);
             return;
         }
         // if we aren't on the first page, go back a page
@@ -109,6 +111,6 @@ export default class Tabs {
             return;
         }
         // select the last item if we are on the first item
-        this.setSelectedTab(this.container.lastChild);
+        this.setSelectedTab(this.container.lastChild as HTMLElement);
     }
 }

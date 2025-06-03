@@ -1,4 +1,6 @@
+import { Command } from "./commands";
 import { Tab } from "./tabs";
+// Commands received from content script
 browser.runtime.onMessage.addListener((message) => {
     switch (message.action) {
         case "query-tabs":
@@ -19,23 +21,24 @@ browser.runtime.onMessage.addListener((message) => {
     }
 });
 
-const sendCommand = (cmd) => {
+// Send command to the content script
+const sendCommand = (cmd: string) => {
     browser.tabs.query({ active: true }).then((tabs) => {
         if (!tabs[0].id) return;
-        browser.tabs.sendMessage(tabs[0].id, { action: cmd });
+        browser.tabs.sendMessage(tabs[0].id, cmd);
     });
 };
 
+// Commands received as defined in manifest.json
 browser.commands.onCommand.addListener((cmd) => {
-    switch (cmd) {
-        case "open-switcher":
-            sendCommand(cmd);
-            break;
-        case "close-switcher":
-            sendCommand(cmd);
-            break;
+    if (Object.values(Command).includes(cmd as Command)) {
+        sendCommand(cmd)
+    } else {
+        console.warn("Invalid command", cmd);
     }
 });
+
+// Event that triggers when user switches tabs
 browser.tabs.onActivated.addListener(() => {
-    sendCommand("close-switcher");
+    sendCommand(Command.CloseMenu);
 });

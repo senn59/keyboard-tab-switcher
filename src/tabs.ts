@@ -69,7 +69,7 @@ export class TabService {
         tab.ariaSelected = "true";
     }
 
-    cycle() {
+    cycleForward() {
         // if there is another item select it
         if (this.selectedTab.nextSibling) {
             this.setSelectedTab(this.selectedTab.nextSibling as HTMLElement);
@@ -91,7 +91,7 @@ export class TabService {
         this.setSelectedTab(this.container.firstChild as HTMLElement);
     }
 
-    cycleReverse() {
+    cycleBackward() {
         // if there is a previous item select it
         if (this.selectedTab.previousSibling) {
             this.setSelectedTab(this.selectedTab.previousSibling as HTMLElement);

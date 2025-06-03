@@ -1,51 +1,62 @@
 import { MenuUI, EventHandlers } from "./menu";
 import { TabService } from "./tabs";
+import { Command } from "./commands";
+
 console.log("Loaded keyboard-tab-switcher");
 
 let menu: MenuUI | undefined;
 let tabs: TabService | undefined;
 const pageLength = 6;
 
-const commandHandler = async (cmd: string) => {
-    switch (cmd) {
-        case "open-switcher":
-            if (menu) {
-                return;
-            }
-            const url = browser.runtime.getURL("menu.html");
-            menu = new MenuUI(url, eventHandlers);
-            if (!menu.open()) {
-                console.error("Could not open menu, exiting...");
-                return;
-            }
+const commandHandlers: Record<Command, () => void> = {
+    [Command.OpenMenu]: () => {
+        if (menu) {
+            return;
+        }
+        const url = browser.runtime.getURL("menu.html");
+        menu = new MenuUI(url, eventHandlers);
+        if (!menu.open()) {
+            return;
+        }
 
-            const tabData = await browser.runtime.sendMessage({ action: "query-tabs" });
-            tabs = new TabService(menu.tabsContainer, tabData, pageLength);
-            tabs.render();
-            break;
-        case "close-switcher":
+        browser.runtime.sendMessage({ action: "query-tabs" }).then((data) => {
             if (!menu) {
+                console.warn("Not able to load tabs due to the menu not being found.");
                 return;
             }
+            tabs = new TabService(menu.tabsContainer, data, pageLength);
+            tabs.render();
+        });
+    },
+    [Command.CloseMenu]: () => {
+        if (!menu) {
+            return;
+        }
 
-            menu.close();
-            menu = undefined;
-            tabs = undefined;
-            break;
-        case "cycle-tab":
-            tabs?.cycle();
-            break;
-        case "cycle-tab-reverse":
-            tabs?.cycleReverse();
-            break;
-        case "switch-tab":
-            // const tabId = tabs.selectedTab.dataset.id;
-            browser.runtime.sendMessage({
-                action: "switch-tab",
-                tabId: Number(tabs?.selectedTab.dataset.id)
-            });
-            commandHandler("close-switcher");
-            break;
+        menu.close();
+        menu = undefined;
+        tabs = undefined;
+    },
+    [Command.CycleTabForward]: () => {
+        if (!tabs) {
+            console.warn("Cannot cycle tabs because TabService is undefined")
+            return;
+        }
+        tabs.cycleForward();
+    },
+    [Command.CycleTabBackward]: () => {
+        if (!tabs) {
+            console.warn("Cannot cycle tabs because TabService is undefined")
+            return;
+        }
+        tabs.cycleBackward();
+    },
+    [Command.SwitchTab]: () => {
+        browser.runtime.sendMessage({
+            action: "switch-tab",
+            tabId: Number(tabs?.selectedTab.dataset.id)
+        });
+        commandHandlers[Command.CloseMenu]();
     }
 };
 
@@ -58,22 +69,22 @@ const eventHandlers: EventHandlers = {
         switch (event.key) {
             case "Escape":
                 event.preventDefault();
-                commandHandler("close-switcher");
+                commandHandlers[Command.CloseMenu]();
                 break;
             case "Tab":
                 event.preventDefault();
-                const cmd = event.shiftKey ? "cycle-tab-reverse" : "cycle-tab";
-                commandHandler(cmd);
+                const cmd = event.shiftKey ? Command.CycleTabBackward : Command.CycleTabForward;
+                commandHandlers[cmd]();
                 break;
             case "Enter":
                 event.preventDefault();
-                commandHandler("switch-tab");
+                commandHandlers[Command.SwitchTab]();
                 break;
         }
     },
     click: (event: MouseEvent) => {
         if (!menu?.menu.contains(event.target as Node)) {
-            commandHandler("close-switcher");
+            commandHandlers[Command.CloseMenu]();
         }
     },
     search: (event: Event) => {
@@ -81,4 +92,10 @@ const eventHandlers: EventHandlers = {
     }
 };
 
-browser.runtime.onMessage.addListener((cmd) => commandHandler(cmd.action));
+browser.runtime.onMessage.addListener((cmd) => {
+    if (Object.values(Command).includes(cmd as Command)) {
+        commandHandlers[cmd]();
+    } else {
+        console.warn("Invalid command", cmd);
+    }
+});

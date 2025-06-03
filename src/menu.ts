@@ -5,9 +5,9 @@ export interface EventHandlers {
 }
 
 export class MenuUI {
-    menu: HTMLElement | undefined;
-    tabsContainer: HTMLElement | undefined;
-    searchBar: HTMLInputElement | undefined;
+    menu: HTMLElement;
+    tabsContainer: HTMLElement;
+    searchBar: HTMLInputElement;
     url: string;
 
     eventHandlers: EventHandlers;
@@ -29,18 +29,19 @@ export class MenuUI {
             shadow.innerHTML = html;
             document.body.appendChild(container);
 
-            const tabsContainer = shadow.querySelector("#tabs-cnt") as HTMLElement;
-            const searchBar = shadow.querySelector("#search-bar") as HTMLInputElement;
-            if (!(this.tabsContainer instanceof HTMLElement)) {
+            const tabsContainer = shadow.querySelector("#tabs-cnt");
+            const searchBar = shadow.querySelector("#search-bar");
+
+            if (!tabsContainer) {
                 throw new Error("Missing tabs container");
             }
-            if (!(this.searchBar instanceof HTMLInputElement)) {
+            if (!searchBar) {
                 throw new Error("Missing tabs container");
             }
 
             this.menu = container;
-            this.tabsContainer = tabsContainer;
-            this.searchBar = searchBar;
+            this.tabsContainer = tabsContainer as HTMLElement;
+            this.searchBar = searchBar as HTMLInputElement;
             this.searchBar.focus();
             this.#addListeners();
         } catch (err) {
@@ -54,13 +55,13 @@ export class MenuUI {
     #addListeners() {
         document.addEventListener("keydown", this.eventHandlers.keyDown);
         window.addEventListener("click", this.eventHandlers.click);
-        this.searchBar?.addEventListener("change", this.eventHandlers.search);
+        this.searchBar.addEventListener("change", this.eventHandlers.search);
     }
 
     #removeListeners() {
         document.removeEventListener("keydown", this.eventHandlers.keyDown);
         window.removeEventListener("click", this.eventHandlers.click);
-        this.searchBar?.removeEventListener("change", this.eventHandlers.search);
+        this.searchBar.removeEventListener("change", this.eventHandlers.search);
     }
 
     close() {
@@ -69,14 +70,5 @@ export class MenuUI {
         }
         this.#removeListeners();
         this.menu.remove();
-        this.menu = undefined;
-        this.searchBar = undefined;
-        this.tabsContainer = undefined;
-        this.url = "";
-        this.eventHandlers = {
-            keyDown: () => {},
-            click: () => {},
-            search: () => {}
-        };
     }
 }

@@ -27,13 +27,12 @@ export class TabService {
         }
 
         const loopInit = this.pageLength * this.page - this.pageLength;
-        const loopCondition = this.pageLength * this.page - 1;
-        for (let i = loopInit; i <= loopCondition; i++) {
+        let loopCondition = this.pageLength * this.page;
+        if (this.tabs.length > loopInit) {
+            loopCondition = this.tabs.length;
+        }
+        for (let i = loopInit; i <= loopCondition - 1; i++) {
             const t = this.tabs[i];
-            if (!t) {
-                continue;
-            }
-
             const item = document.createElement("li");
             const favicon = document.createElement("img");
             const title = document.createElement("span");

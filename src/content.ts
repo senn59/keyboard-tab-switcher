@@ -14,7 +14,8 @@ const commandHandler = async (cmd: string) => {
             }
             const url = browser.runtime.getURL("menu.html");
             menu = new MenuUI(url, eventHandlers);
-            if (!menu.open() || !menu.tabsContainer) {
+            if (!menu.open()) {
+                console.error("Could not open menu, exiting...");
                 return;
             }
 
@@ -71,7 +72,7 @@ const eventHandlers: EventHandlers = {
         }
     },
     click: (event: MouseEvent) => {
-        if (menu?.menu && !menu.menu.contains(event.target as Node)) {
+        if (!menu?.menu.contains(event.target as Node)) {
             commandHandler("close-switcher");
         }
     },

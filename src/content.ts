@@ -39,22 +39,26 @@ const commandHandlers: Record<Command, () => void> = {
     },
     [Command.CycleTabForward]: () => {
         if (!tabs) {
-            console.warn("Cannot cycle tabs because TabService is undefined")
+            console.warn("Cannot cycle tabs because TabService is undefined");
             return;
         }
         tabs.cycleForward();
     },
     [Command.CycleTabBackward]: () => {
         if (!tabs) {
-            console.warn("Cannot cycle tabs because TabService is undefined")
+            console.warn("Cannot cycle tabs because TabService is undefined");
             return;
         }
         tabs.cycleBackward();
     },
     [Command.SwitchTab]: () => {
+        if (!tabs || !tabs.selectedTab) {
+            console.warn("No tab selected.");
+            return;
+        }
         browser.runtime.sendMessage({
             action: "switch-tab",
-            tabId: Number(tabs?.selectedTab.dataset.id)
+            tabId: Number(tabs.selectedTab.dataset.id)
         });
         commandHandlers[Command.CloseMenu]();
     }
@@ -94,7 +98,7 @@ const eventHandlers: EventHandlers = {
 
 browser.runtime.onMessage.addListener((cmd) => {
     if (Object.values(Command).includes(cmd as Command)) {
-        commandHandlers[cmd]();
+        commandHandlers[cmd as Command]();
     } else {
         console.warn("Invalid command", cmd);
     }

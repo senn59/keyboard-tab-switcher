@@ -5,8 +5,8 @@ module.exports = {
     mode: 'development',
     devtool: 'inline-source-map',
     entry: {
-        background: './src/background.js',
-        content: './src/content.js'
+        background: './src/background.ts',
+        content: './src/content.ts'
     },
     output: {
         filename: '[name].bundle.js',

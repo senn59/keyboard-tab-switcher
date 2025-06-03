@@ -32,9 +32,7 @@ const sendCommand = (cmd: string) => {
 // Commands received as defined in manifest.json
 browser.commands.onCommand.addListener((cmd) => {
     if (Object.values(Command).includes(cmd as Command)) {
-        sendCommand(cmd)
-    } else {
-        console.warn("Invalid command", cmd);
+        sendCommand(cmd);
     }
 });
 

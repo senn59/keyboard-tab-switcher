@@ -4,8 +4,9 @@ export interface Tab {
     url: string;
     favicon: string | undefined;
 }
+
 export class TabService {
-    selectedTab: HTMLElement;
+    selectedTab: HTMLElement | undefined;
     lastPage: number;
     page: number;
     pageLength: number;
@@ -54,11 +55,7 @@ export class TabService {
             this.container.append(item);
         }
 
-        if (reverse) {
-            this.setSelectedTab(this.container.lastChild as HTMLElement);
-        } else {
-            this.setSelectedTab(this.container.firstChild as HTMLElement);
-        }
+        reverse ? this.cycleBackward() : this.cycleForward();
     }
 
     setSelectedTab(tab: HTMLElement) {
@@ -70,6 +67,10 @@ export class TabService {
     }
 
     cycleForward() {
+        if (!this.selectedTab) {
+            this.setSelectedTab(this.container.firstChild as HTMLElement);
+            return;
+        }
         // if there is another item select it
         if (this.selectedTab.nextSibling) {
             this.setSelectedTab(this.selectedTab.nextSibling as HTMLElement);
@@ -92,6 +93,10 @@ export class TabService {
     }
 
     cycleBackward() {
+        if (!this.selectedTab) {
+            this.setSelectedTab(this.container.lastChild as HTMLElement);
+            return;
+        }
         // if there is a previous item select it
         if (this.selectedTab.previousSibling) {
             this.setSelectedTab(this.selectedTab.previousSibling as HTMLElement);

@@ -5,9 +5,9 @@ export interface EventHandlers {
 }
 
 export class MenuUI {
-    menu: HTMLElement;
-    tabsContainer: HTMLElement;
-    searchBar: HTMLInputElement;
+    menu!: HTMLElement;
+    tabsContainer!: HTMLElement;
+    searchBar!: HTMLInputElement;
     url: string;
 
     eventHandlers: EventHandlers;
@@ -36,7 +36,7 @@ export class MenuUI {
                 throw new Error("Missing tabs container");
             }
             if (!searchBar) {
-                throw new Error("Missing tabs container");
+                throw new Error("Missing search bar");
             }
 
             this.menu = container;
@@ -53,12 +53,18 @@ export class MenuUI {
 
     //will need to pass the handlers for this to work here
     #addListeners() {
+        if (!this.menu) {
+            return;
+        }
         document.addEventListener("keydown", this.eventHandlers.keyDown);
         window.addEventListener("click", this.eventHandlers.click);
         this.searchBar.addEventListener("change", this.eventHandlers.search);
     }
 
     #removeListeners() {
+        if (!this.menu) {
+            return;
+        }
         document.removeEventListener("keydown", this.eventHandlers.keyDown);
         window.removeEventListener("click", this.eventHandlers.click);
         this.searchBar.removeEventListener("change", this.eventHandlers.search);

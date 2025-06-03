@@ -1,8 +1,10 @@
 import { MenuUI, EventHandlers } from "./menu";
 import { TabService } from "./tabs";
 import { Command } from "./commands";
+import { Logger } from "./logger";
 
-console.log("Loaded keyboard-tab-switcher");
+
+Logger.log("Loaded!")
 
 let menu: MenuUI | undefined;
 let tabs: TabService | undefined;
@@ -21,7 +23,7 @@ const commandHandlers: Record<Command, () => void> = {
 
         browser.runtime.sendMessage({ action: "query-tabs" }).then((data) => {
             if (!menu) {
-                console.warn("Not able to load tabs due to the menu not being found.");
+                Logger.warn("Not able to load tabs due to the menu not being found.");
                 return;
             }
             tabs = new TabService(menu.tabsContainer, data, pageLength);
@@ -39,21 +41,21 @@ const commandHandlers: Record<Command, () => void> = {
     },
     [Command.CycleTabForward]: () => {
         if (!tabs) {
-            console.warn("Cannot cycle tabs because TabService is undefined");
+            Logger.warn("Cannot cycle tabs because TabService is undefined");
             return;
         }
         tabs.cycleForward();
     },
     [Command.CycleTabBackward]: () => {
         if (!tabs) {
-            console.warn("Cannot cycle tabs because TabService is undefined");
+            Logger.warn("Cannot cycle tabs because TabService is undefined");
             return;
         }
         tabs.cycleBackward();
     },
     [Command.SwitchTab]: () => {
         if (!tabs || !tabs.selectedTab) {
-            console.warn("No tab selected.");
+            Logger.warn("No tab selected.");
             return;
         }
         browser.runtime.sendMessage({
@@ -92,7 +94,7 @@ const eventHandlers: EventHandlers = {
         }
     },
     search: (event: Event) => {
-        console.log((event.target as HTMLInputElement).value);
+        Logger.log((event.target as HTMLInputElement).value);
     }
 };
 
@@ -100,6 +102,6 @@ browser.runtime.onMessage.addListener((cmd) => {
     if (Object.values(Command).includes(cmd as Command)) {
         commandHandlers[cmd as Command]();
     } else {
-        console.warn("Invalid command", cmd);
+        Logger.warn("Invalid command", cmd);
     }
 });

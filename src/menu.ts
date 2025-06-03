@@ -1,3 +1,5 @@
+import { Logger } from "./logger";
+
 export interface EventHandlers {
     keyDown: (event: KeyboardEvent) => void;
     click: (event: MouseEvent) => void;
@@ -45,7 +47,7 @@ export class MenuUI {
             this.searchBar.focus();
             this.#addListeners();
         } catch (err) {
-            console.error("Error loading keyboard-tab-switcher menu", err);
+            Logger.error("Error loading menu", err);
             return false;
         }
         return true;

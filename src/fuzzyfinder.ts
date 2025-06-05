@@ -18,7 +18,7 @@ export class MiniSearchFzf implements IFuzzyFinder {
             storeFields: fields
         });
         this.options = {
-            fuzzy: 0.2,
+            fuzzy: 0.6,
             prefix: true,
             fields: fields,
             combineWith: "OR"
@@ -26,15 +26,13 @@ export class MiniSearchFzf implements IFuzzyFinder {
     }
 
     search(query: string): Tab[] {
-        Logger.log(query);
-        Logger.log(this.ms.documentCount);
         let res: Tab[] = [];
-        this.ms.search(query, this.options).forEach((r) => {
-            const tab = this.tabMap?.get(r.id);
-            if (tab) {
-                res.push(tab);
-            }
-        });
+        // this.ms.search(query, this.options).forEach((r) => {
+        //     const tab = this.tabMap?.get(r.id);
+        //     if (tab) {
+        //         res.push(tab);
+        //     }
+        // });
         return res;
     }
 

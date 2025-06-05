@@ -1,4 +1,5 @@
 import { IFuzzyFinder } from "./fuzzyfinder";
+import { Logger } from "./logger";
 
 export interface Tab {
     id: number;
@@ -13,11 +14,13 @@ export class TabService {
     page: number;
     pageLength: number;
     container: HTMLElement;
+    originalTabs: Tab[]
     tabs: Tab[];
     fuzzyFinder: IFuzzyFinder;
 
     constructor(fzf: IFuzzyFinder, container: HTMLElement, tabs: Tab[], pageLength: number) {
         this.tabs = tabs;
+        this.originalTabs = tabs;
         this.container = container;
         this.pageLength = pageLength;
         this.page = 1;
@@ -28,6 +31,9 @@ export class TabService {
 
     render(query: string | null = null, reverse = false) {
         this.tabs = this.fuzzyFinder.search(query ?? "");
+        if (this.tabs.length === 0) {
+            this.tabs = this.originalTabs;
+        }
 
         this.container.innerHTML = "";
         if (this.tabs.length <= this.pageLength) {

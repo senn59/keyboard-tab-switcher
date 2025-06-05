@@ -1,5 +1,5 @@
 import { Command } from "./commands";
-import { Tab } from "./tabs";
+import { Tab } from "./tab-service";
 // Commands received from content script
 browser.runtime.onMessage.addListener((message) => {
     switch (message.action) {
@@ -38,5 +38,5 @@ browser.commands.onCommand.addListener((cmd) => {
 
 // Event that triggers when user switches tabs
 browser.tabs.onActivated.addListener(() => {
-    sendCommand(Command.CloseMenu);
+    sendCommand(Command.CLOSE_MENU);
 });

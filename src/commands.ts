@@ -1,7 +1,7 @@
 export enum Command {
-    OpenMenu = "open-menu",
-    CloseMenu = "close-menu",
-    CycleTabForward = "cycle-tab-forward",
-    CycleTabBackward = "cycle-tab-backward",
-    SwitchTab = "switch-tab"
+    OPEN_MENU = "open-menu",
+    CLOSE_MENU = "close-menu",
+    CYCLE_TAB_FORWARD = "cycle-tab-forward",
+    CYCLE_TAB_BACKWARD = "cycle-tab-backward",
+    SWITCH_TAB = "switch-tab"
 }

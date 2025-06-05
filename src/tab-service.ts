@@ -1,9 +1,9 @@
-import { IFuzzyFinder } from "./fuzzyfinder";
+import { IFuzzyFinder } from "./fuzzy-finder";
 
 export enum PageAction {
-    NEXT,
-    PREVIOUS,
-    FIRST
+    NEXT = "NEXT",
+    PREVIOUS = "PREVIOUS",
+    FIRST = "FIRST"
 }
 
 export interface Tab {
@@ -74,10 +74,12 @@ export class TabService {
     }
 
     render(action?: PageAction, reverse = false) {
+        if (this.#tabs.length === 0) {
+            return;
+        }
         if (action) {
             this.#setPage(action);
         }
-
         this.#container.innerHTML = "";
         this.#getPageSlice().forEach((t) => {
             const item = document.createElement("li");
@@ -100,7 +102,6 @@ export class TabService {
             item.append(title);
             this.#container.append(item);
         });
-
         const target = reverse ? this.#container.lastChild : this.#container.firstChild;
         this.setSelectedTab(target as HTMLElement);
     }
@@ -123,7 +124,7 @@ export class TabService {
             return;
         }
         if (this.#pageCount > 1) {
-            this.render(PageAction.NEXT, true);
+            this.render(PageAction.NEXT);
             return;
         }
         this.setSelectedTab(this.#container.firstChild as HTMLElement);

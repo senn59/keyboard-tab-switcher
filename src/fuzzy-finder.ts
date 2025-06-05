@@ -1,4 +1,4 @@
-import { Tab } from "./tabs";
+import { Tab } from "./tab-service";
 import MiniSearch, { SearchOptions } from "minisearch";
 
 export interface IFuzzyFinder {
@@ -17,10 +17,9 @@ export class MiniSearchFzf implements IFuzzyFinder {
             storeFields: fields
         });
         this.#options = {
-            fuzzy: 0.6,
+            fuzzy: 0.2,
             prefix: true,
-            fields: fields,
-            combineWith: "OR"
+            fields: fields
         };
     }
 

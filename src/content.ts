@@ -2,12 +2,13 @@ import { MenuUI, EventHandlers } from "./menu";
 import { TabService } from "./tabs";
 import { Command } from "./commands";
 import { Logger } from "./logger";
-
+import { IFuzzyFinder, MiniSearchFzf } from "./fuzzyfinder";
 
 Logger.log("Loaded!")
 
 let menu: MenuUI | undefined;
 let tabs: TabService | undefined;
+let fzf: IFuzzyFinder | undefined;
 const pageLength = 6;
 
 const commandHandlers: Record<Command, () => void> = {
@@ -26,7 +27,10 @@ const commandHandlers: Record<Command, () => void> = {
                 Logger.warn("Not able to load tabs due to the menu not being found.");
                 return;
             }
-            tabs = new TabService(menu.tabsContainer, data, pageLength);
+            if (!fzf) {
+                fzf = new MiniSearchFzf(["title", "url"]);
+            }
+            tabs = new TabService(fzf, menu.tabsContainer, data, pageLength);
             tabs.render();
         });
     },
@@ -38,6 +42,7 @@ const commandHandlers: Record<Command, () => void> = {
         menu.close();
         menu = undefined;
         tabs = undefined;
+        fzf = undefined;
     },
     [Command.CycleTabForward]: () => {
         if (!tabs) {
@@ -93,8 +98,8 @@ const eventHandlers: EventHandlers = {
             commandHandlers[Command.CloseMenu]();
         }
     },
-    search: (event: Event) => {
-        Logger.log((event.target as HTMLInputElement).value);
+    search: () => {
+        tabs?.render(menu?.searchBar.value);
     }
 };
 

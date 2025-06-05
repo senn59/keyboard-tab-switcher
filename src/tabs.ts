@@ -1,3 +1,5 @@
+import { IFuzzyFinder } from "./fuzzyfinder";
+
 export interface Tab {
     id: number;
     title: string;
@@ -12,16 +14,21 @@ export class TabService {
     pageLength: number;
     container: HTMLElement;
     tabs: Tab[];
+    fuzzyFinder: IFuzzyFinder;
 
-    constructor(container: HTMLElement, tabs: Tab[], pageLength: number) {
+    constructor(fzf: IFuzzyFinder, container: HTMLElement, tabs: Tab[], pageLength: number) {
         this.tabs = tabs;
         this.container = container;
         this.pageLength = pageLength;
         this.page = 1;
         this.lastPage = Math.ceil(tabs.length / pageLength);
+        this.fuzzyFinder = fzf;
+        this.fuzzyFinder.addData(this.tabs)
     }
 
-    render(reverse = false) {
+    render(query: string | null = null, reverse = false) {
+        this.tabs = this.fuzzyFinder.search(query ?? "");
+
         this.container.innerHTML = "";
         if (this.tabs.length <= this.pageLength) {
             this.page = 1;
@@ -105,13 +112,13 @@ export class TabService {
         // if we aren't on the first page, go back a page
         if (this.page > 1) {
             this.page -= 1;
-            this.render(true);
+            this.render(null, true);
             return;
         }
         // if we are on the first page and there are more pages, wrap around to the first page
         if (this.lastPage > 1) {
             this.page = this.lastPage;
-            this.render(true);
+            this.render(null, true);
             return;
         }
         // select the last item if we are on the first item

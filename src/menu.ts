@@ -3,7 +3,7 @@ import { Logger } from "./logger";
 export interface EventHandlers {
     keyDown: (event: KeyboardEvent) => void;
     click: (event: MouseEvent) => void;
-    search: (event: Event) => void;
+    search: () => void;
 }
 
 export class MenuUI {
@@ -60,7 +60,7 @@ export class MenuUI {
         }
         document.addEventListener("keydown", this.eventHandlers.keyDown);
         window.addEventListener("click", this.eventHandlers.click);
-        this.searchBar.addEventListener("change", this.eventHandlers.search);
+        this.searchBar.addEventListener("input", this.eventHandlers.search);
     }
 
     #removeListeners() {
@@ -69,7 +69,7 @@ export class MenuUI {
         }
         document.removeEventListener("keydown", this.eventHandlers.keyDown);
         window.removeEventListener("click", this.eventHandlers.click);
-        this.searchBar.removeEventListener("change", this.eventHandlers.search);
+        this.searchBar.removeEventListener("input", this.eventHandlers.search);
     }
 
     close() {

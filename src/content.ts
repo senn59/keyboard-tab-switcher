@@ -1,5 +1,5 @@
 import { MenuUI, EventHandlers } from "./menu";
-import { TabService } from "./tabs";
+import { PageAction, TabService } from "./tabs";
 import { Command } from "./commands";
 import { Logger } from "./logger";
 import { IFuzzyFinder, MiniSearchFzf } from "./fuzzyfinder";
@@ -99,7 +99,7 @@ const eventHandlers: EventHandlers = {
         }
     },
     search: () => {
-        tabs?.setQuery(menu?.searchBar.value ?? "");
+        tabs?.search(menu?.searchBar.value ?? "");
     }
 };
 

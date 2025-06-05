@@ -1,5 +1,11 @@
 import { IFuzzyFinder } from "./fuzzyfinder";
 
+export enum PageAction {
+    NEXT,
+    PREVIOUS,
+    FIRST
+}
+
 export interface Tab {
     id: number;
     title: string;
@@ -9,7 +15,7 @@ export interface Tab {
 
 export class TabService {
     selectedTab: HTMLElement | undefined;
-    #lastPage: number;
+    #pageCount: number;
     #page: number = 1;
     #pageLength: number;
     #container: HTMLElement;
@@ -23,30 +29,57 @@ export class TabService {
         this.#originalTabs = tabs;
         this.#container = container;
         this.#pageLength = pageLength;
-        this.#lastPage = Math.ceil(tabs.length / pageLength);
+        this.#pageCount = Math.ceil(tabs.length / pageLength);
         this.#fuzzyFinder = fzf;
         this.#fuzzyFinder.addData(this.#tabs);
     }
 
-    setQuery(query: string) {
-        this.#query = query
+    search(query: string) {
+        this.#query = query;
+        if (!this.#query) {
+            this.#tabs = this.#originalTabs;
+        } else {
+            this.#tabs = this.#fuzzyFinder.search(this.#query);
+        }
+        this.render(PageAction.FIRST);
     }
 
-    render(reverse = false) {
-        this.#tabs = this.#fuzzyFinder.search(this.#query);
-        if (this.#tabs.length === 0) {
-            this.#tabs = this.#originalTabs;
+    #setPage(action: PageAction) {
+        this.#pageCount = Math.ceil(this.#tabs.length / this.#pageLength);
+        switch (action) {
+            case PageAction.NEXT:
+                if (this.#page === this.#pageCount) {
+                    this.#page = 1;
+                } else {
+                    this.#page += 1;
+                }
+                break;
+            case PageAction.PREVIOUS:
+                if (this.#page === 1) {
+                    this.#page = this.#pageCount;
+                } else {
+                    this.#page -= 1;
+                }
+                break;
+            case PageAction.FIRST:
+                this.#page = 1;
+                break;
         }
-        this.#lastPage = Math.ceil(this.#tabs.length / this.#pageLength);
-        if (this.#tabs.length <= this.#pageLength) {
-            this.#page = 1;
+    }
+
+    #getPageSlice(): Tab[] {
+        const startIndex = this.#pageLength * this.#page - this.#pageLength;
+        const endIndex = Math.min(startIndex + this.#pageLength, this.#tabs.length);
+        return this.#tabs.slice(startIndex, endIndex);
+    }
+
+    render(action?: PageAction, reverse = false) {
+        if (action) {
+            this.#setPage(action);
         }
 
         this.#container.innerHTML = "";
-        const loopInit = this.#pageLength * this.#page - this.#pageLength;
-        let loopCondition = Math.min(loopInit + this.#pageLength, this.#tabs.length);
-        for (let i = loopInit; i <= loopCondition - 1; i++) {
-            const t = this.#tabs[i];
+        this.#getPageSlice().forEach((t) => {
             const item = document.createElement("li");
             const favicon = document.createElement("img");
             const title = document.createElement("span");
@@ -66,13 +99,10 @@ export class TabService {
             item.append(favicon);
             item.append(title);
             this.#container.append(item);
-        }
+        });
 
-        if (reverse) {
-            this.setSelectedTab(this.#container.lastChild as HTMLElement);
-        } else {
-            this.setSelectedTab(this.#container.firstChild as HTMLElement);
-        }
+        const target = reverse ? this.#container.lastChild : this.#container.firstChild;
+        this.setSelectedTab(target as HTMLElement);
     }
 
     setSelectedTab(tab: HTMLElement) {
@@ -88,24 +118,14 @@ export class TabService {
             this.setSelectedTab(this.#container.firstChild as HTMLElement);
             return;
         }
-        // if there is another item select it
         if (this.selectedTab.nextSibling) {
             this.setSelectedTab(this.selectedTab.nextSibling as HTMLElement);
             return;
         }
-        // if there are more items, go to the next page
-        if (this.#tabs.length > this.#page * this.#pageLength) {
-            this.#page++;
-            this.render();
+        if (this.#pageCount > 1) {
+            this.render(PageAction.NEXT, true);
             return;
         }
-        // if we are on the last page and there are multiple pages, wrap around to the first page
-        if (this.#lastPage > 1 && this.#page === this.#lastPage) {
-            this.#page = 1;
-            this.render();
-            return;
-        }
-        // select the first item if we are on the last item
         this.setSelectedTab(this.#container.firstChild as HTMLElement);
     }
 
@@ -114,24 +134,14 @@ export class TabService {
             this.setSelectedTab(this.#container.lastChild as HTMLElement);
             return;
         }
-        // if there is a previous item select it
         if (this.selectedTab.previousSibling) {
             this.setSelectedTab(this.selectedTab.previousSibling as HTMLElement);
             return;
         }
-        // if we aren't on the first page, go back a page
-        if (this.#page > 1) {
-            this.#page -= 1;
-            this.render();
+        if (this.#pageCount > 1) {
+            this.render(PageAction.PREVIOUS, true);
             return;
         }
-        // if we are on the first page and there are more pages, wrap around to the first page
-        if (this.#lastPage > 1) {
-            this.#page = this.#lastPage;
-            this.render(true);
-            return;
-        }
-        // select the last item if we are on the first item
         this.setSelectedTab(this.#container.lastChild as HTMLElement);
     }
 }

@@ -1,5 +1,4 @@
 import { IFuzzyFinder } from "./fuzzyfinder";
-import { Logger } from "./logger";
 
 export interface Tab {
     id: number;
@@ -68,7 +67,11 @@ export class TabService {
             this.container.append(item);
         }
 
-        reverse ? this.cycleBackward() : this.cycleForward();
+        if (reverse) {
+            this.setSelectedTab(this.container.lastChild as HTMLElement);
+        } else {
+            this.setSelectedTab(this.container.firstChild as HTMLElement);
+        }
     }
 
     setSelectedTab(tab: HTMLElement) {

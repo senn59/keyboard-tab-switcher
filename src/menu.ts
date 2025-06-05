@@ -10,13 +10,13 @@ export class MenuUI {
     menu!: HTMLElement;
     tabsContainer!: HTMLElement;
     searchBar!: HTMLInputElement;
-    url: string;
+    #url: string;
 
-    eventHandlers: EventHandlers;
+    #eventHandlers: EventHandlers;
 
     constructor(url: string, eventHandlers: EventHandlers) {
-        this.url = url;
-        this.eventHandlers = eventHandlers;
+        this.#url = url;
+        this.#eventHandlers = eventHandlers;
     }
 
     async open(): Promise<boolean> {
@@ -24,7 +24,7 @@ export class MenuUI {
             return false;
         }
         try {
-            const response = await fetch(this.url);
+            const response = await fetch(this.#url);
             const html = await response.text();
             const container = document.createElement("div");
             const shadow = container.attachShadow({ mode: "open" });
@@ -58,18 +58,18 @@ export class MenuUI {
         if (!this.menu) {
             return;
         }
-        document.addEventListener("keydown", this.eventHandlers.keyDown);
-        window.addEventListener("click", this.eventHandlers.click);
-        this.searchBar.addEventListener("input", this.eventHandlers.search);
+        document.addEventListener("keydown", this.#eventHandlers.keyDown);
+        window.addEventListener("click", this.#eventHandlers.click);
+        this.searchBar.addEventListener("input", this.#eventHandlers.search);
     }
 
     #removeListeners() {
         if (!this.menu) {
             return;
         }
-        document.removeEventListener("keydown", this.eventHandlers.keyDown);
-        window.removeEventListener("click", this.eventHandlers.click);
-        this.searchBar.removeEventListener("input", this.eventHandlers.search);
+        document.removeEventListener("keydown", this.#eventHandlers.keyDown);
+        window.removeEventListener("click", this.#eventHandlers.click);
+        this.searchBar.removeEventListener("input", this.#eventHandlers.search);
     }
 
     close() {

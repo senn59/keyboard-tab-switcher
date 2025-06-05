@@ -7,16 +7,16 @@ export interface IFuzzyFinder {
 }
 
 export class MiniSearchFzf implements IFuzzyFinder {
-    ms: MiniSearch<any>;
-    tabMap: Map<number, Tab> | undefined;
-    options: SearchOptions;
+    #ms: MiniSearch<any>;
+    #tabMap: Map<number, Tab> | undefined;
+    #options: SearchOptions;
 
     constructor(fields: string[]) {
-        this.ms = new MiniSearch({
+        this.#ms = new MiniSearch({
             fields: fields,
             storeFields: fields
         });
-        this.options = {
+        this.#options = {
             fuzzy: 0.6,
             prefix: true,
             fields: fields,
@@ -26,8 +26,8 @@ export class MiniSearchFzf implements IFuzzyFinder {
 
     search(query: string): Tab[] {
         let res: Tab[] = [];
-        this.ms.search(query, this.options).forEach((r) => {
-            const tab = this.tabMap?.get(r.id);
+        this.#ms.search(query, this.#options).forEach((r) => {
+            const tab = this.#tabMap?.get(r.id);
             if (tab) {
                 res.push(tab);
             }
@@ -36,7 +36,7 @@ export class MiniSearchFzf implements IFuzzyFinder {
     }
 
     addData(data: Tab[]) {
-        this.tabMap = new Map(data.map((t) => [t.id, t]));
-        this.ms.addAll(data);
+        this.#tabMap = new Map(data.map((t) => [t.id, t]));
+        this.#ms.addAll(data);
     }
 }

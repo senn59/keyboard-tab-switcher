@@ -99,7 +99,7 @@ const eventHandlers: EventHandlers = {
         }
     },
     search: () => {
-        tabs?.render(menu?.searchBar.value);
+        tabs?.setQuery(menu?.searchBar.value ?? "");
     }
 };
 

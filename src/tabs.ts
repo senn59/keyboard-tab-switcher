@@ -10,40 +10,38 @@ export interface Tab {
 export class TabService {
     selectedTab: HTMLElement | undefined;
     lastPage: number;
-    page: number;
+    page: number = 1;
     pageLength: number;
     container: HTMLElement;
-    originalTabs: Tab[]
+    originalTabs: Tab[];
     tabs: Tab[];
     fuzzyFinder: IFuzzyFinder;
+    query: string = "";
 
     constructor(fzf: IFuzzyFinder, container: HTMLElement, tabs: Tab[], pageLength: number) {
         this.tabs = tabs;
         this.originalTabs = tabs;
         this.container = container;
         this.pageLength = pageLength;
-        this.page = 1;
         this.lastPage = Math.ceil(tabs.length / pageLength);
         this.fuzzyFinder = fzf;
-        this.fuzzyFinder.addData(this.tabs)
+        this.fuzzyFinder.addData(this.tabs);
     }
 
     render(query: string | null = null, reverse = false) {
-        this.tabs = this.fuzzyFinder.search(query ?? "");
+        this.query = query ?? "";
+        this.tabs = this.fuzzyFinder.search(this.query);
         if (this.tabs.length === 0) {
             this.tabs = this.originalTabs;
         }
-
-        this.container.innerHTML = "";
+        this.lastPage = Math.ceil(this.tabs.length / this.pageLength);
         if (this.tabs.length <= this.pageLength) {
             this.page = 1;
         }
 
+        this.container.innerHTML = "";
         const loopInit = this.pageLength * this.page - this.pageLength;
-        let loopCondition = this.pageLength * this.page;
-        if (this.tabs.length > loopInit) {
-            loopCondition = this.tabs.length;
-        }
+        let loopCondition = Math.min(loopInit + this.pageLength, this.tabs.length);
         for (let i = loopInit; i <= loopCondition - 1; i++) {
             const t = this.tabs[i];
             const item = document.createElement("li");
@@ -95,13 +93,13 @@ export class TabService {
         // if there are more items, go to the next page
         if (this.tabs.length > this.page * this.pageLength) {
             this.page++;
-            this.render();
+            this.render(this.query);
             return;
         }
         // if we are on the last page and there are multiple pages, wrap around to the first page
         if (this.lastPage > 1 && this.page === this.lastPage) {
             this.page = 1;
-            this.render();
+            this.render(this.query);
             return;
         }
         // select the first item if we are on the last item
@@ -121,13 +119,13 @@ export class TabService {
         // if we aren't on the first page, go back a page
         if (this.page > 1) {
             this.page -= 1;
-            this.render(null, true);
+            this.render(this.query, true);
             return;
         }
         // if we are on the first page and there are more pages, wrap around to the first page
         if (this.lastPage > 1) {
             this.page = this.lastPage;
-            this.render(null, true);
+            this.render(this.query, true);
             return;
         }
         // select the last item if we are on the first item

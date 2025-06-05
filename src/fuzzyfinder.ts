@@ -1,4 +1,3 @@
-import { Logger } from "./logger";
 import { Tab } from "./tabs";
 import MiniSearch, { SearchOptions } from "minisearch";
 
@@ -27,12 +26,12 @@ export class MiniSearchFzf implements IFuzzyFinder {
 
     search(query: string): Tab[] {
         let res: Tab[] = [];
-        // this.ms.search(query, this.options).forEach((r) => {
-        //     const tab = this.tabMap?.get(r.id);
-        //     if (tab) {
-        //         res.push(tab);
-        //     }
-        // });
+        this.ms.search(query, this.options).forEach((r) => {
+            const tab = this.tabMap?.get(r.id);
+            if (tab) {
+                res.push(tab);
+            }
+        });
         return res;
     }
 

@@ -85,6 +85,14 @@ const eventHandlers: EventHandlers = {
                 const cmd = event.shiftKey ? Command.CYCLE_TAB_BACKWARD : Command.CYCLE_TAB_FORWARD;
                 commandHandlers[cmd]();
                 break;
+            case "ArrowDown":
+            case "ArrowRight":
+                commandHandlers[Command.CYCLE_TAB_FORWARD]();
+                break;
+            case "ArrowUp":
+            case "ArrowLeft":
+                commandHandlers[Command.CYCLE_TAB_BACKWARD]();
+                break;
             case "Enter":
                 event.preventDefault();
                 commandHandlers[Command.SWITCH_TAB]();

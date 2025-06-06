@@ -22,6 +22,10 @@ interface DisplayTab {
     searchMatches: string[];
 }
 
+const escapeRegex = (str: string): string => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export class TabService {
     selectedTab: HTMLElement | undefined;
     #pageCount: number;
@@ -99,9 +103,10 @@ export class TabService {
                 browser.runtime.sendMessage({ action: "switch-tab", tabId: tab.id });
             };
 
+            const titleHTML = this.#highlightSearchMatches(tab.title, tab.searchMatches);
             favicon.src = tab.favicon ?? "";
             favicon.alt = tab.title + " fav icon";
-            title.innerText = tab.title;
+            title.innerHTML = titleHTML;
             title.classList.add("tab-title");
 
             item.append(favicon);
@@ -110,6 +115,15 @@ export class TabService {
         });
         const target = reverse ? this.#container.lastChild : this.#container.firstChild;
         this.#setSelectedTab(target as HTMLElement);
+    }
+
+    #highlightSearchMatches(title: string, matches: string[]): string {
+        if (!matches) {
+            return title;
+        }
+        const pattern = matches.map(escapeRegex).join("|");
+        const regex = new RegExp(pattern, "gi");
+        return title.replace(regex, match => `<mark>${match}</mark>`)
     }
 
     #setSelectedTab(tab: HTMLElement) {

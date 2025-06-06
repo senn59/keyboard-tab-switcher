@@ -1,8 +1,13 @@
 import { Tab } from "./tab-service";
 import MiniSearch, { SearchOptions } from "minisearch";
 
+export interface SearchResult {
+    tab: Tab
+    matches: string[]
+}
+
 export interface IFuzzyFinder {
-    search: (query: string) => Tab[];
+    search: (query: string) => SearchResult[];
     addData: (data: Tab[]) => void;
 }
 
@@ -23,12 +28,15 @@ export class MiniSearchFzf implements IFuzzyFinder {
         };
     }
 
-    search(query: string): Tab[] {
-        let res: Tab[] = [];
+    search(query: string): SearchResult[] {
+        let res: SearchResult[] = [];
         this.#ms.search(query, this.#options).forEach((r) => {
             const tab = this.#tabMap?.get(r.id);
             if (tab) {
-                res.push(tab);
+                res.push({
+                    tab: tab,
+                    matches: r.queryTerms
+                });
             }
         });
         return res;

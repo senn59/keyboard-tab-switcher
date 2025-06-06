@@ -14,6 +14,14 @@ export interface Tab {
     favicon: string | undefined;
 }
 
+interface DisplayTab {
+    id: number;
+    title: string;
+    host: string;
+    favicon?: string;
+    searchMatches: string[];
+}
+
 export class TabService {
     selectedTab: HTMLElement | undefined;
     #pageCount: number;
@@ -21,32 +29,30 @@ export class TabService {
     #pageLength: number;
     #container: HTMLElement;
     #originalTabs: Tab[];
-    #tabs: Tab[];
+    #tabsToRender: DisplayTab[];
     #fuzzyFinder: IFuzzyFinder;
     #query: string = "";
 
     constructor(fzf: IFuzzyFinder, container: HTMLElement, tabs: Tab[], pageLength: number) {
-        this.#tabs = tabs;
         this.#originalTabs = tabs;
+        this.#tabsToRender = tabs.map((t) => ({ ...t, searchMatches: [] }));
         this.#container = container;
         this.#pageLength = pageLength;
         this.#pageCount = Math.ceil(tabs.length / pageLength);
         this.#fuzzyFinder = fzf;
-        this.#fuzzyFinder.addData(this.#tabs);
+        this.#fuzzyFinder.addData(this.#originalTabs);
     }
 
     search(query: string) {
         this.#query = query;
-        if (!this.#query) {
-            this.#tabs = this.#originalTabs;
-        } else {
-            this.#tabs = this.#fuzzyFinder.search(this.#query);
-        }
+        this.#tabsToRender = this.#query
+            ? this.#fuzzyFinder.search(this.#query).map((r) => ({ ...r.tab, searchMatches: r.matches }))
+            : this.#originalTabs.map((t) => ({ ...t, searchMatches: [] }));
         this.render(PageAction.FIRST);
     }
 
     #setPage(action: PageAction) {
-        this.#pageCount = Math.ceil(this.#tabs.length / this.#pageLength);
+        this.#pageCount = Math.ceil(this.#tabsToRender.length / this.#pageLength);
         switch (action) {
             case PageAction.NEXT:
                 if (this.#page === this.#pageCount) {
@@ -68,35 +74,34 @@ export class TabService {
         }
     }
 
-    #getPageSlice(): Tab[] {
+    #getPageData(): DisplayTab[] {
         const startIndex = this.#pageLength * this.#page - this.#pageLength;
-        const endIndex = Math.min(startIndex + this.#pageLength, this.#tabs.length);
-        return this.#tabs.slice(startIndex, endIndex);
+        const endIndex = Math.min(startIndex + this.#pageLength, this.#tabsToRender.length);
+        return this.#tabsToRender.slice(startIndex, endIndex);
     }
 
     render(action?: PageAction, reverse = false) {
-        if (this.#tabs.length === 0) {
+        if (this.#tabsToRender.length === 0) {
             return;
         }
         if (action) {
             this.#setPage(action);
         }
         this.#container.innerHTML = "";
-        this.#getPageSlice().forEach((t) => {
+        this.#getPageData().forEach((tab) => {
             const item = document.createElement("li");
             const favicon = document.createElement("img");
             const title = document.createElement("span");
 
             item.classList.add("tab");
-            item.dataset.id = t.id.toString();
+            item.dataset.id = tab.id.toString();
             item.onclick = () => {
-                browser.runtime.sendMessage({ action: "switch-tab", tabId: t.id });
+                browser.runtime.sendMessage({ action: "switch-tab", tabId: tab.id });
             };
 
-            favicon.src = t.favicon ?? "";
-            favicon.alt = t.title + " fav icon";
-
-            title.innerText = t.title;
+            favicon.src = tab.favicon ?? "";
+            favicon.alt = tab.title + " fav icon";
+            title.innerText = tab.title;
             title.classList.add("tab-title");
 
             item.append(favicon);
@@ -104,10 +109,10 @@ export class TabService {
             this.#container.append(item);
         });
         const target = reverse ? this.#container.lastChild : this.#container.firstChild;
-        this.setSelectedTab(target as HTMLElement);
+        this.#setSelectedTab(target as HTMLElement);
     }
 
-    setSelectedTab(tab: HTMLElement) {
+    #setSelectedTab(tab: HTMLElement) {
         if (this.selectedTab) {
             this.selectedTab.ariaSelected = "false";
         }
@@ -117,33 +122,33 @@ export class TabService {
 
     cycleForward() {
         if (!this.selectedTab) {
-            this.setSelectedTab(this.#container.firstChild as HTMLElement);
+            this.#setSelectedTab(this.#container.firstChild as HTMLElement);
             return;
         }
         if (this.selectedTab.nextSibling) {
-            this.setSelectedTab(this.selectedTab.nextSibling as HTMLElement);
+            this.#setSelectedTab(this.selectedTab.nextSibling as HTMLElement);
             return;
         }
         if (this.#pageCount > 1) {
             this.render(PageAction.NEXT);
             return;
         }
-        this.setSelectedTab(this.#container.firstChild as HTMLElement);
+        this.#setSelectedTab(this.#container.firstChild as HTMLElement);
     }
 
     cycleBackward() {
         if (!this.selectedTab) {
-            this.setSelectedTab(this.#container.lastChild as HTMLElement);
+            this.#setSelectedTab(this.#container.lastChild as HTMLElement);
             return;
         }
         if (this.selectedTab.previousSibling) {
-            this.setSelectedTab(this.selectedTab.previousSibling as HTMLElement);
+            this.#setSelectedTab(this.selectedTab.previousSibling as HTMLElement);
             return;
         }
         if (this.#pageCount > 1) {
             this.render(PageAction.PREVIOUS, true);
             return;
         }
-        this.setSelectedTab(this.#container.lastChild as HTMLElement);
+        this.#setSelectedTab(this.#container.lastChild as HTMLElement);
     }
 }

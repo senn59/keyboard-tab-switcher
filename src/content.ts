@@ -1,17 +1,18 @@
-import { MenuUI, EventHandlers } from "./menu";
-import { TabService } from "./tabs";
+import { MenuUI, EventHandlers } from "./menu-ui";
+import { TabService } from "./tab-service";
 import { Command } from "./commands";
 import { Logger } from "./logger";
+import { IFuzzyFinder, MiniSearchFzf } from "./fuzzy-finder";
 
-
-Logger.log("Loaded!")
+Logger.log("Loaded!");
 
 let menu: MenuUI | undefined;
 let tabs: TabService | undefined;
+let fzf: IFuzzyFinder | undefined;
 const pageLength = 6;
 
 const commandHandlers: Record<Command, () => void> = {
-    [Command.OpenMenu]: () => {
+    [Command.OPEN_MENU]: () => {
         if (menu) {
             return;
         }
@@ -20,40 +21,42 @@ const commandHandlers: Record<Command, () => void> = {
         if (!menu.open()) {
             return;
         }
-
         browser.runtime.sendMessage({ action: "query-tabs" }).then((data) => {
             if (!menu) {
                 Logger.warn("Not able to load tabs due to the menu not being found.");
                 return;
             }
-            tabs = new TabService(menu.tabsContainer, data, pageLength);
+            if (!fzf) {
+                fzf = new MiniSearchFzf(["host", "title", "path"]);
+            }
+            tabs = new TabService(fzf, menu.tabsContainer, data, pageLength);
             tabs.render();
         });
     },
-    [Command.CloseMenu]: () => {
+    [Command.CLOSE_MENU]: () => {
         if (!menu) {
             return;
         }
-
         menu.close();
         menu = undefined;
         tabs = undefined;
+        fzf = undefined;
     },
-    [Command.CycleTabForward]: () => {
+    [Command.CYCLE_TAB_FORWARD]: () => {
         if (!tabs) {
             Logger.warn("Cannot cycle tabs because TabService is undefined");
             return;
         }
         tabs.cycleForward();
     },
-    [Command.CycleTabBackward]: () => {
+    [Command.CYCLE_TAB_BACKWARD]: () => {
         if (!tabs) {
             Logger.warn("Cannot cycle tabs because TabService is undefined");
             return;
         }
         tabs.cycleBackward();
     },
-    [Command.SwitchTab]: () => {
+    [Command.SWITCH_TAB]: () => {
         if (!tabs || !tabs.selectedTab) {
             Logger.warn("No tab selected.");
             return;
@@ -62,39 +65,47 @@ const commandHandlers: Record<Command, () => void> = {
             action: "switch-tab",
             tabId: Number(tabs.selectedTab.dataset.id)
         });
-        commandHandlers[Command.CloseMenu]();
+        commandHandlers[Command.CLOSE_MENU]();
     }
 };
 
-/*
- * Keys like 'Escape', 'Tab', 'Enter' aren't allowed as browser commands.
- * We add an event listener to work around this.
- */
 const eventHandlers: EventHandlers = {
+    /*
+     * Keys like 'Escape', 'Tab', 'Enter' aren't allowed as browser commands.
+     * So instead we handle this in a keyDown event listener
+     */
     keyDown: (event: KeyboardEvent) => {
         switch (event.key) {
             case "Escape":
                 event.preventDefault();
-                commandHandlers[Command.CloseMenu]();
+                commandHandlers[Command.CLOSE_MENU]();
                 break;
             case "Tab":
                 event.preventDefault();
-                const cmd = event.shiftKey ? Command.CycleTabBackward : Command.CycleTabForward;
+                const cmd = event.shiftKey ? Command.CYCLE_TAB_BACKWARD : Command.CYCLE_TAB_FORWARD;
                 commandHandlers[cmd]();
+                break;
+            case "ArrowDown":
+            case "ArrowRight":
+                commandHandlers[Command.CYCLE_TAB_FORWARD]();
+                break;
+            case "ArrowUp":
+            case "ArrowLeft":
+                commandHandlers[Command.CYCLE_TAB_BACKWARD]();
                 break;
             case "Enter":
                 event.preventDefault();
-                commandHandlers[Command.SwitchTab]();
+                commandHandlers[Command.SWITCH_TAB]();
                 break;
         }
     },
     click: (event: MouseEvent) => {
         if (!menu?.menu.contains(event.target as Node)) {
-            commandHandlers[Command.CloseMenu]();
+            commandHandlers[Command.CLOSE_MENU]();
         }
     },
-    search: (event: Event) => {
-        Logger.log((event.target as HTMLInputElement).value);
+    search: () => {
+        tabs?.search(menu?.searchBar.value ?? "");
     }
 };
 

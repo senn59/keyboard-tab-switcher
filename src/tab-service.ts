@@ -9,7 +9,7 @@ export enum PageAction {
 export interface Tab {
     id: number;
     title: string;
-    host: string;
+    domain: string;
     path?: string;
     favicon: string | undefined;
 }
@@ -17,7 +17,7 @@ export interface Tab {
 interface DisplayTab {
     id: number;
     title: string;
-    host: string;
+    domain: string;
     favicon?: string;
     searchMatches: string[];
 }

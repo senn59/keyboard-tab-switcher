@@ -96,6 +96,7 @@ export class TabService {
             const item = document.createElement("li");
             const favicon = document.createElement("img");
             const title = document.createElement("span");
+            const domain = document.createElement("span");
 
             item.classList.add("tab");
             item.dataset.id = tab.id.toString();
@@ -103,27 +104,34 @@ export class TabService {
                 browser.runtime.sendMessage({ action: "switch-tab", tabId: tab.id });
             };
 
-            const titleHTML = this.#highlightSearchMatches(tab.title, tab.searchMatches);
             favicon.src = tab.favicon ?? "";
             favicon.alt = tab.title + " fav icon";
+
+            const titleHTML = this.#highlightSearchMatches(tab.title, tab.searchMatches);
             title.innerHTML = titleHTML;
             title.classList.add("tab-title");
 
+            let domainHTML = this.#highlightSearchMatches(tab.domain, tab.searchMatches);
+            domainHTML = `(${domainHTML})`;
+            domain.innerHTML = domainHTML;
+            domain.classList.add("tab-domain");
+
             item.append(favicon);
             item.append(title);
+            item.append(domain);
             this.#container.append(item);
         });
         const target = reverse ? this.#container.lastChild : this.#container.firstChild;
         this.#setSelectedTab(target as HTMLElement);
     }
 
-    #highlightSearchMatches(title: string, matches: string[]): string {
+    #highlightSearchMatches(str: string, matches: string[]): string {
         if (!matches) {
-            return title;
+            return str;
         }
         const pattern = matches.map(escapeRegex).join("|");
         const regex = new RegExp(pattern, "gi");
-        return title.replace(regex, (match) => `<mark>${match}</mark>`);
+        return str.replace(regex, (match) => `<mark>${match}</mark>`);
     }
 
     #setSelectedTab(tab: HTMLElement) {

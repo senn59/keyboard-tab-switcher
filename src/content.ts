@@ -27,7 +27,7 @@ const commandHandlers: Record<Command, () => void> = {
                 return;
             }
             if (!fzf) {
-                fzf = new MiniSearchFzf(["host", "title", "path"]);
+                fzf = new MiniSearchFzf(["domain", "title", "path"]);
             }
             tabs = new TabService(fzf, menu.tabsContainer, data, pageLength);
             tabs.render();

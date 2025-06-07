@@ -3,8 +3,7 @@
 
     :host {
         --max-items-in-view: 6;
-        --item-height: 36px;
-        --search-bar-height: 48px;
+        --item-height: 48px;
     }
 
     *,
@@ -14,32 +13,48 @@
         padding: 0;
         border: 0;
         box-sizing: border-box;
-        color: #ffffff;
         font-family: "JetBrains Mono", monospace;
         font-optical-sizing: auto;
         font-weight: 400;
         font-style: normal;
+        color: #e5e5e5;
     }
+
+    /* MAIN CONTAINTERS */
     #tab-switcher-cnt {
         position: fixed;
         z-index: 2147483647;
-        background-color: #202020;
-        width: 600px;
-        height: calc(var(--max-items-in-view) * var(--item-height) + var(--search-bar-height));
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        border: 2px solid white;
-        overflow: hidden;
-    }
-    ul {
-        text-decoration: none;
-        list-style: none;
-        padding: 0;
-    }
-    #tabs-cnt {
         display: flex;
         flex-direction: column;
+        width: 600px;
+        background-color: #171717;
+        outline: 1px solid #404040;
+        padding: 14px;
+        gap: 14px;
+    }
+    #tabs-cnt {
+        height: calc(var(--max-items-in-view) * var(--item-height));
+        display: flex;
+        flex-direction: column;
+    }
+    #search-bar-cnt {
+        display: flex;
+        align-items: center;
+        padding-bottom: 0;
+        font-size: 16px;
+        padding: 4px;
+        padding-bottom: 0;
+        gap: 10px;
+    }
+
+    /* TAB / LIST ITEM */
+    ul {
+        padding: 0;
+        text-decoration: none;
+        list-style: none;
     }
     .tab {
         height: var(--item-height);
@@ -47,18 +62,15 @@
         font-size: 14px;
         width: 100%;
         padding: 0 8px;
+        gap: 10px;
         display: flex;
         align-items: center;
         overflow: hidden;
         text-wrap: nowrap;
         text-overflow: ellipsis;
     }
-    .tab[aria-selected="true"] {
-        background-color: #404040;
-    }
     .tab img {
-        height: 18px;
-        padding-right: 8px;
+        height: 20px;
     }
     .tab mark {
         background-color: inherit;
@@ -67,39 +79,47 @@
     }
     .tab .tab-domain {
         font-size: 12px;
-        color: #DDDDDD;
+        color: #a1a1a1;
         font-style: italic;
-        margin-left: 10px;
     }
     .tab .tab-title {
         text-overflow: ellipsis;
         overflow: hidden;
         max-width: fit-content;
     }
-    input {
-        height: var(--search-bar-height);
-        line-height: var(--search-bar-height);
-        font-size: 16px;
+
+    /* SELECTED TAB */
+    .tab[aria-selected="true"] {
+        background-color: #262626;
+        outline: 1px solid #404040;
     }
-    #search-bar-cnt {
-        height: 48px;
-        line-height: 48px;
+
+    /* SEARCH BOX */
+    input {
         font-size: 16px;
-        padding: 0 8px;
     }
     input {
         padding: 0;
         background-color: transparent;
+        width: 100%;
         color: white;
     }
     input:focus {
         outline: none;
     }
+
+    /* SEPARATOR */
+    .separator {
+        width: 100%;
+        height: 1px;
+        background-color: #404040;
+    }
 </style>
 <div id="tab-switcher-cnt">
     <div id="search-bar-cnt">
         <span>tab:</span>
-        <input type="text" placeholder=". . ." id="search-bar" />
+        <input type="text" placeholder="..." id="search-bar" />
     </div>
+    <div class="separator"></div>
     <ul id="tabs-cnt"></ul>
 </div>

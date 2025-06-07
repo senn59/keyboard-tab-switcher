@@ -12,6 +12,7 @@ export interface Tab {
     title: string;
     domain: string;
     path?: string;
+    active: boolean
     favicon: string | undefined;
 }
 
@@ -19,6 +20,7 @@ interface DisplayTab {
     id: number;
     title: string;
     domain: string;
+    active: boolean
     favicon?: string;
     searchMatches: string[];
 }
@@ -106,6 +108,7 @@ export class TabService {
             const domain = document.createElement("span");
 
             item.classList.add("tab");
+            tab.active ? item.classList.add("active") : null;
             item.dataset.id = tab.id.toString();
             item.onclick = () => {
                 browser.runtime.sendMessage({ action: "switch-tab", tabId: tab.id });

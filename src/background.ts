@@ -27,7 +27,8 @@ const filterTab = (tab: browser.tabs.Tab): Tab => {
         title: tab.title ?? "",
         domain: hostname,
         path: path,
-        favicon: tab.favIconUrl
+        favicon: tab.favIconUrl,
+        active: tab.active
     };
 };
 

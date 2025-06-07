@@ -4,6 +4,7 @@
     :host {
         --max-items-in-view: 6;
         --item-height: 48px;
+        --item-gap: 2px;
     }
 
     *,
@@ -34,11 +35,13 @@
         outline: 1px solid #404040;
         padding: 14px;
         gap: 14px;
+        border-radius: 19px;
     }
     #tabs-cnt {
-        height: calc(var(--max-items-in-view) * var(--item-height));
+        height: calc(var(--max-items-in-view) * calc(var(--item-height) + var(--item-gap)) - var(--item-gap));
         display: flex;
         flex-direction: column;
+        gap: var(--item-gap);
     }
     #search-bar-cnt {
         display: flex;
@@ -68,6 +71,7 @@
         overflow: hidden;
         text-wrap: nowrap;
         text-overflow: ellipsis;
+        border-radius: 5px;
     }
     .tab img {
         height: 20px;
@@ -86,6 +90,11 @@
         text-overflow: ellipsis;
         overflow: hidden;
         max-width: fit-content;
+    }
+
+    ul .active {
+        /* background-color: #404040; */
+        outline: 1px solid #404040;
     }
 
     /* SELECTED TAB */

@@ -69,11 +69,11 @@ const commandHandlers: Record<Command, () => void> = {
     }
 };
 
-/*
- * Keys like 'Escape', 'Tab', 'Enter' aren't allowed as browser commands.
- * We add an event listener to work around this.
- */
 const eventHandlers: EventHandlers = {
+    /*
+     * Keys like 'Escape', 'Tab', 'Enter' aren't allowed as browser commands.
+     * So instead we handle this in a keyDown event listener
+     */
     keyDown: (event: KeyboardEvent) => {
         switch (event.key) {
             case "Escape":

@@ -1,5 +1,6 @@
 import { Command } from "./commands";
 import { Tab } from "./tab-service";
+
 // Commands received from content script
 browser.runtime.onMessage.addListener((message) => {
     switch (message.action) {
@@ -45,7 +46,7 @@ const parseUrlPath = (path: string, params: string) => {
         .trim();
     return path + " " + params;
 };
-// Send command to the content script
+// Send command to the content script / active tab
 const sendCommand = (cmd: string) => {
     browser.tabs.query({ active: true }).then((tabs) => {
         if (!tabs[0].id) return;

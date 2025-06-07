@@ -23,8 +23,8 @@ interface DisplayTab {
 }
 
 const escapeRegex = (str: string): string => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
 
 export class TabService {
     selectedTab: HTMLElement | undefined;
@@ -123,7 +123,7 @@ export class TabService {
         }
         const pattern = matches.map(escapeRegex).join("|");
         const regex = new RegExp(pattern, "gi");
-        return title.replace(regex, match => `<mark>${match}</mark>`)
+        return title.replace(regex, (match) => `<mark>${match}</mark>`);
     }
 
     #setSelectedTab(tab: HTMLElement) {

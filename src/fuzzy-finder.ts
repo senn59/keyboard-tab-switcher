@@ -2,8 +2,8 @@ import { Tab } from "./tab-service";
 import MiniSearch, { SearchOptions } from "minisearch";
 
 export interface SearchResult {
-    tab: Tab
-    matches: string[]
+    tab: Tab;
+    matches: string[];
 }
 
 export interface IFuzzyFinder {

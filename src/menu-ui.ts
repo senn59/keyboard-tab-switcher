@@ -53,7 +53,6 @@ export class MenuUI {
         return true;
     }
 
-    //will need to pass the handlers for this to work here
     #addListeners() {
         if (!this.menu) {
             return;

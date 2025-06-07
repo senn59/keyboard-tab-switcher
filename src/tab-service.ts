@@ -1,4 +1,5 @@
 import { IFuzzyFinder } from "./fuzzy-finder";
+import { Logger } from "./logger";
 
 export enum PageAction {
     NEXT = "NEXT",
@@ -49,9 +50,15 @@ export class TabService {
 
     search(query: string) {
         this.#query = query;
-        this.#tabsToRender = this.#query
-            ? this.#fuzzyFinder.search(this.#query).map((r) => ({ ...r.tab, searchMatches: r.matches }))
-            : this.#originalTabs.map((t) => ({ ...t, searchMatches: [] }));
+        let tabs: DisplayTab[] = [];
+        if (query) {
+            tabs = this.#fuzzyFinder.search(query).map((r) => ({ ...r.tab, searchMatches: r.matches }));
+        }
+        if (tabs.length === 0) {
+            tabs = this.#originalTabs.map(t => ({...t, searchMatches: []}));
+        }
+        
+        this.#tabsToRender = tabs;
         this.render(PageAction.FIRST);
     }
 

@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Keyboard tab switcher",
+  "version": "0.1",
+  "description": "Use the keyboard to navigate between your tabs easily.",
+  "permissions": ["activeTab", "tabs"],
+
+  "action": {
+      "default_title": "keyboard-tab-switcher",
+      "default_popup": "popup.html"
+  },
+
+  "commands": {
+      "_execute_action": {
+          "suggested_key": {
+              "default": "Ctrl+Space"
+          },
+          "description": "Open popup."
+      }
+  },
+
+  "background": { 
+      "scripts": ["background.js"] 
+  }
+}

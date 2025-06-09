@@ -3,11 +3,18 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="popup.css">
+        <link rel="stylesheet" href="popup.css" />
         <title>keyboard-tab-switcher</title>
     </head>
     <body>
-        <h1>test</h1>
+        <div id="tab-switcher-cnt">
+            <div id="search-bar-cnt">
+                <span>tab:</span>
+                <input type="text" placeholder="..." id="search-bar" />
+            </div>
+            <div class="separator"></div>
+            <ul id="tabs-cnt"></ul>
+        </div>
     </body>
     <script src="popup.js"></script>
 </html>

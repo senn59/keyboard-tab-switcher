@@ -17,6 +17,9 @@ importers:
       copy-webpack-plugin:
         specifier: ^13.0.0
         version: 13.0.0(webpack@5.99.9)
+      minisearch:
+        specifier: ^7.1.2
+        version: 7.1.2
       prettier:
         specifier: ^3.5.3
         version: 3.5.3
@@ -1126,6 +1129,9 @@ packages:
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
+
+  minisearch@7.1.2:
+    resolution: {integrity: sha512-R1Pd9eF+MD5JYDDSPAp/q1ougKglm14uEkPMvQ/05RGmx6G9wvmLTrTI/Q5iPNJLYqNdsDQ7qTGIcNWR+FrHmA==}
 
   ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -2851,6 +2857,8 @@ snapshots:
       brace-expansion: 1.1.11
 
   minimist@1.2.8: {}
+
+  minisearch@7.1.2: {}
 
   ms@2.0.0: {}
 

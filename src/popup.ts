@@ -1,11 +1,15 @@
+import { MiniSearchFzf } from "./lib/search-provider";
 import { PageAction, TabService } from "./lib/tab-service";
 
 const tabsContainer = document.querySelector("#tabs-cnt") as HTMLElement;
-const searchBar = document.querySelector("#search-bar") as HTMLInputElement;
+let searchBar = document.querySelector("#search-bar") as HTMLInputElement;
+setTimeout(() => searchBar.focus(), 50); // Delayed due to firefox extension popup behaviour
+
 let tabService: TabService | null = null;
 browser.runtime.sendMessage({ action: "query-tabs" }).then((data) => {
     if (tabsContainer) {
-        tabService = new TabService(tabsContainer, data, 3);
+        const fzf = new MiniSearchFzf(["title", "domain", "path"]);
+        tabService = new TabService(tabsContainer, data, fzf, 3);
         tabService.render(PageAction.FIRST);
     }
 });

@@ -1,3 +1,5 @@
+import { ISearchProvider } from "./search-provider";
+
 export enum PageAction {
     NEXT = "NEXT",
     PREVIOUS = "PREVIOUS",
@@ -34,20 +36,22 @@ export class TabService {
     #container: HTMLElement;
     #originalTabs: Tab[];
     #tabsToRender: DisplayTab[];
+    #searcher: ISearchProvider;
 
-    constructor(container: HTMLElement, tabs: Tab[], pageLength: number) {
+    constructor(container: HTMLElement, tabs: Tab[], fzf: ISearchProvider, pageLength: number) {
         this.#originalTabs = tabs;
         this.#tabsToRender = tabs.map((t) => ({ ...t, searchMatches: [] }));
         this.#container = container;
         this.#pageLength = pageLength;
         this.#pageCount = Math.ceil(tabs.length / pageLength);
+        this.#searcher = fzf
+        this.#searcher.addData(tabs)
     }
 
     search(query: string) {
         let tabs: DisplayTab[] = [];
-        query = ""
         if (query) {
-            // search
+            tabs = this.#searcher.search(query).map((r) => ({ ...r.tab, searchMatches: r.matches }));
         }
         if (tabs.length === 0) {
             tabs = this.#originalTabs.map((t) => ({ ...t, searchMatches: [] }));

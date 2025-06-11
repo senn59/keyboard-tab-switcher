@@ -34,10 +34,14 @@
 }
 
 /* MAIN CONTAINTERS */
+body {
+    background-color: var(--bg-color);
+}
 #tab-switcher-cnt {
     display: flex;
     flex-direction: column;
     width: 600px;
+    background-color: white;
     background-color: var(--bg-color);
     outline: 1px solid var(--accent-color);
     padding: 14px;

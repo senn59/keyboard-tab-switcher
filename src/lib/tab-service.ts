@@ -38,14 +38,14 @@ export class TabService {
     #tabsToRender: DisplayTab[];
     #searcher: ISearchProvider;
 
-    constructor(container: HTMLElement, tabs: Tab[], fzf: ISearchProvider, pageLength: number) {
+    constructor(container: HTMLElement, tabs: Tab[], searcher: ISearchProvider, pageLength: number) {
         this.#originalTabs = tabs;
         this.#tabsToRender = tabs.map((t) => ({ ...t, searchMatches: [] }));
         this.#container = container;
         this.#pageLength = pageLength;
         this.#pageCount = Math.ceil(tabs.length / pageLength);
-        this.#searcher = fzf
-        this.#searcher.addData(tabs)
+        this.#searcher = searcher;
+        this.#searcher.addData(tabs);
     }
 
     search(query: string) {
@@ -101,10 +101,6 @@ export class TabService {
         const fragment = document.createDocumentFragment();
         this.#getPageData().forEach((tab) => {
             const item = document.createElement("li");
-            const favicon = document.createElement("img");
-            const title = document.createElement("span");
-            const domain = document.createElement("span");
-
             item.classList.add("tab");
             tab.active ? item.classList.add("active") : null;
             item.dataset.id = tab.id.toString();
@@ -112,22 +108,27 @@ export class TabService {
                 browser.runtime.sendMessage({ action: "switch-tab", tabId: tab.id });
             };
 
+            const favicon = document.createElement("img");
             favicon.src = tab.favicon ?? "";
             favicon.alt = tab.title + " fav icon";
+            item.append(favicon);
 
+            const title = document.createElement("span");
             const titleHTML = this.#highlightSearchMatches(tab.title, tab.searchMatches);
             title.appendChild(titleHTML);
             title.classList.add("tab-title");
-
-            let domainHTML = this.#highlightSearchMatches(tab.domain, tab.searchMatches);
-            domain.appendChild(document.createTextNode("("));
-            domain.appendChild(domainHTML);
-            domain.appendChild(document.createTextNode(")"));
-            domain.classList.add("tab-domain");
-
-            item.append(favicon);
             item.append(title);
-            item.append(domain);
+
+            if (tab.domain) {
+                const domain = document.createElement("span");
+                let domainHTML = this.#highlightSearchMatches(tab.domain, tab.searchMatches);
+                domain.appendChild(document.createTextNode("("));
+                domain.appendChild(domainHTML);
+                domain.appendChild(document.createTextNode(")"));
+                domain.classList.add("tab-domain");
+                item.append(domain);
+            }
+
             fragment.append(item);
         });
         this.#container.append(fragment);
